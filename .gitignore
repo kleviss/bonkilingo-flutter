@@ -106,3 +106,7 @@ test/.test_coverage.dart
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 
+# Environment
+env.json
+.vscode/launch.json
+.cursor/
