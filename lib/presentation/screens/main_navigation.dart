@@ -13,40 +13,48 @@ class MainNavigation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        activeColor: AppColors.primary,
-        inactiveColor: AppColors.textTertiary,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+    final currentIndex = ref.watch(navigationIndexProvider);
+
+    return CupertinoPageScaffold(
+      child: Column(
+        children: [
+          Expanded(
+            child: IndexedStack(
+              index: currentIndex,
+              children: const [
+                HomeScreen(),
+                RewardsScreen(),
+                LearnScreen(),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.card_giftcard_outlined),
-            activeIcon: Icon(Icons.card_giftcard),
-            label: 'Rewards',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school_outlined),
-            activeIcon: Icon(Icons.school),
-            label: 'Learn',
+          CupertinoTabBar(
+            currentIndex: currentIndex,
+            activeColor: AppColors.primary,
+            inactiveColor: AppColors.textTertiary,
+            onTap: (index) {
+              ref.read(navigationIndexProvider.notifier).state = index;
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.card_giftcard_outlined),
+                activeIcon: Icon(Icons.card_giftcard),
+                label: 'Rewards',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.school_outlined),
+                activeIcon: Icon(Icons.school),
+                label: 'Learn',
+              ),
+            ],
           ),
         ],
       ),
-      tabBuilder: (context, index) {
-        switch (index) {
-          case 0:
-            return const HomeScreen();
-          case 1:
-            return const RewardsScreen();
-          case 2:
-            return const LearnScreen();
-          default:
-            return const HomeScreen();
-        }
-      },
     );
   }
 }

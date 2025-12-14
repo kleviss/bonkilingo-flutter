@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons, ThemeMode;
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_helper.dart';
 import '../../../core/utils/extensions.dart';
-import '../../../core/constants/language_constants.dart';
 import 'learn_provider.dart';
 import '../../providers/theme_provider.dart';
 
@@ -18,6 +17,22 @@ class FlashcardsView extends ConsumerStatefulWidget {
 
 class _FlashcardsViewState extends ConsumerState<FlashcardsView> {
   String? _expandedLessonId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-expand lesson if specified
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final learnState = ref.read(learnStateProvider);
+      if (learnState.lessonToExpand != null) {
+        setState(() {
+          _expandedLessonId = learnState.lessonToExpand;
+        });
+        // Clear the flag after expanding
+        ref.read(learnStateProvider.notifier).clearLessonToExpand();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -239,14 +254,5 @@ class _FlashcardsViewState extends ConsumerState<FlashcardsView> {
         ],
       ),
     );
-  }
-
-  String _getLanguageName(String code) {
-    return LanguageConstants.supportedLanguages
-            .firstWhere(
-              (lang) => lang.code == code,
-              orElse: () => const Language(code: '', name: 'Unknown'),
-            )
-            .name;
   }
 }

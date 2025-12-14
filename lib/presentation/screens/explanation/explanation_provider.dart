@@ -30,6 +30,7 @@ class ExplanationState {
   final bool isLoading;
   final bool isCreatingLesson;
   final bool lessonCreated;
+  final String? createdLessonId;
   final String? error;
 
   ExplanationState({
@@ -37,6 +38,7 @@ class ExplanationState {
     this.isLoading = false,
     this.isCreatingLesson = false,
     this.lessonCreated = false,
+    this.createdLessonId,
     this.error,
   });
 
@@ -45,6 +47,7 @@ class ExplanationState {
     bool? isLoading,
     bool? isCreatingLesson,
     bool? lessonCreated,
+    String? createdLessonId,
     String? error,
     bool clearError = false,
   }) {
@@ -53,6 +56,7 @@ class ExplanationState {
       isLoading: isLoading ?? this.isLoading,
       isCreatingLesson: isCreatingLesson ?? this.isCreatingLesson,
       lessonCreated: lessonCreated ?? this.lessonCreated,
+      createdLessonId: createdLessonId ?? this.createdLessonId,
       error: clearError ? null : (error ?? this.error),
     );
   }
@@ -165,7 +169,7 @@ class ExplanationStateNotifier extends StateNotifier<ExplanationState> {
       final lessonTitle = 'Lesson from chat: $title';
 
       // Save the lesson
-      await _lessonRepository.saveLesson(
+      final savedLesson = await _lessonRepository.saveLesson(
         userId: _userId ?? '',
         title: lessonTitle,
         content: lessonContent,
@@ -177,6 +181,7 @@ class ExplanationStateNotifier extends StateNotifier<ExplanationState> {
       state = state.copyWith(
         isCreatingLesson: false,
         lessonCreated: true,
+        createdLessonId: savedLesson.id,
       );
     } catch (e) {
       state = state.copyWith(
@@ -187,7 +192,7 @@ class ExplanationStateNotifier extends StateNotifier<ExplanationState> {
   }
 
   void resetLessonCreated() {
-    state = state.copyWith(lessonCreated: false);
+    state = state.copyWith(lessonCreated: false, createdLessonId: null);
   }
 
   void clearError() {

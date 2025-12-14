@@ -31,6 +31,7 @@ class LearnState {
   final String? generatedLesson;
   final List<LessonModel> savedLessons;
   final String? error;
+  final String? lessonToExpand;
 
   LearnState({
     this.activeTool,
@@ -40,6 +41,7 @@ class LearnState {
     this.generatedLesson,
     this.savedLessons = const [],
     this.error,
+    this.lessonToExpand,
   });
 
   LearnState copyWith({
@@ -50,6 +52,8 @@ class LearnState {
     String? generatedLesson,
     List<LessonModel>? savedLessons,
     String? error,
+    String? lessonToExpand,
+    bool clearLessonToExpand = false,
   }) {
     return LearnState(
       activeTool: activeTool,
@@ -59,6 +63,7 @@ class LearnState {
       generatedLesson: generatedLesson,
       savedLessons: savedLessons ?? this.savedLessons,
       error: error,
+      lessonToExpand: clearLessonToExpand ? null : (lessonToExpand ?? this.lessonToExpand),
     );
   }
 }
@@ -78,11 +83,22 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
     _loadSavedLessons();
   }
 
-  void setActiveTool(LearnTool tool) {
-    state = state.copyWith(activeTool: tool);
+  void setActiveTool(LearnTool tool, {String? lessonToExpand}) {
+    state = state.copyWith(
+      activeTool: tool,
+      lessonToExpand: lessonToExpand,
+    );
     if (tool == LearnTool.flashcards) {
       _loadSavedLessons();
     }
+  }
+
+  void setLessonToExpand(String? lessonId) {
+    state = state.copyWith(lessonToExpand: lessonId);
+  }
+
+  void clearLessonToExpand() {
+    state = state.copyWith(clearLessonToExpand: true);
   }
 
   void clearActiveTool() {

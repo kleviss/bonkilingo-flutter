@@ -3,6 +3,8 @@ import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/theme_helper.dart';
 import '../../providers/theme_provider.dart';
+import '../../screens/main_navigation.dart';
+import '../learn/learn_provider.dart';
 import 'explanation_provider.dart';
 
 class ExplanationScreen extends ConsumerStatefulWidget {
@@ -51,7 +53,7 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
     }
   }
 
-  void _showSuccessDialog() {
+  void _showSuccessDialog(String lessonId) {
     showCupertinoDialog(
       context: context,
       barrierDismissible: true,
@@ -62,13 +64,36 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
         ),
         actions: [
           CupertinoDialogAction(
-            isDefaultAction: true,
+            child: const Text('Keep Talking'),
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.of(context).pop();
+              _navigateToLesson(lessonId);
+            },
+            child: const Text('View Lesson'),
           ),
         ],
       ),
     );
+  }
+
+  void _navigateToLesson(String lessonId) {
+    // Set flashcards tool active and expand the lesson first
+    ref.read(learnStateProvider.notifier).setActiveTool(
+          LearnTool.flashcards,
+          lessonToExpand: lessonId,
+        );
+
+    // Pop back to root navigation
+    Navigator.of(context).popUntil((route) => route.isFirst);
+
+    // Navigate to Learn tab (index 2) after popping
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationIndexProvider.notifier).state = 2;
+    });
   }
 
   void _showErrorDialog(String message) {
@@ -101,9 +126,10 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
     });
 
     // Show success dialog when lesson is created
-    if (explanationState.lessonCreated) {
+    if (explanationState.lessonCreated &&
+        explanationState.createdLessonId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showSuccessDialog();
+        _showSuccessDialog(explanationState.createdLessonId!);
         // Reset the flag
         ref.read(explanationStateProvider.notifier).resetLessonCreated();
       });
