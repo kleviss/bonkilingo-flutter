@@ -8,6 +8,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/correction_repository.dart';
 import '../../data/repositories/language_repository.dart';
 import '../../data/repositories/lesson_repository.dart';
+import '../../data/repositories/lesson_progress_repository.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../data/services/points_service.dart';
 
@@ -74,5 +75,10 @@ final languageRepositoryProvider = Provider<LanguageRepository>((ref) {
 
 final pointsServiceProvider = Provider<PointsService>((ref) {
   return PointsService();
+});
+
+final lessonProgressRepositoryProvider = Provider<LessonProgressRepository>((ref) {
+  final localStorage = ref.watch(localStorageProvider);
+  return LessonProgressRepository(localStorage);
 });
 

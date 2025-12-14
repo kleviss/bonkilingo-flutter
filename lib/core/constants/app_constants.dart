@@ -21,6 +21,7 @@ class AppConstants {
   static const String userDataKey = 'user_data';
   static const String chatHistoryKey = 'chat_history';
   static const String savedLessonsKey = 'saved_lessons';
+  static const String lessonProgressKey = 'lesson_progress';
   static const String authTokenKey = 'auth_token';
 
   // Hive Boxes

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons, RefreshIndicator;
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -49,47 +49,50 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
       child: SafeArea(
         child: rewardsState.isLoading && balance == null
             ? const Center(child: CupertinoActivityIndicator())
-            : RefreshIndicator(
-                onRefresh: () async {
-                  await ref.read(rewardsStateProvider.notifier).loadData();
-                },
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // BONK Balance Card
-                      _buildBalanceCard(theme, pendingBalance, balance),
-
-                      const SizedBox(height: 16),
-
-                      // Wallet & Withdraw Section
-                      _buildWalletSection(theme, balance),
-
-                      const SizedBox(height: 24),
-
-                      // Stats Row
-                      if (balance != null) _buildStatsRow(theme, balance),
-
-                      const SizedBox(height: 24),
-
-                      // How to Earn Section
-                      _buildHowToEarnSection(theme, rewardsState.config),
-
-                      const SizedBox(height: 24),
-
-                      // Recent Activity
-                      _buildRecentActivitySection(theme, rewardsState.rewardHistory),
-
-                      const SizedBox(height: 24),
-
-                      // Withdrawal History
-                      if (rewardsState.withdrawalHistory.isNotEmpty)
-                        _buildWithdrawalHistorySection(theme, rewardsState.withdrawalHistory),
-                    ],
+            : CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  CupertinoSliverRefreshControl(
+                    onRefresh: () async {
+                      await ref.read(rewardsStateProvider.notifier).loadData();
+                    },
                   ),
-                ),
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        // BONK Balance Card
+                        _buildBalanceCard(theme, pendingBalance, balance),
+
+                        const SizedBox(height: 16),
+
+                        // Wallet & Withdraw Section
+                        _buildWalletSection(theme, balance),
+
+                        const SizedBox(height: 24),
+
+                        // Stats Row
+                        if (balance != null) _buildStatsRow(theme, balance),
+
+                        const SizedBox(height: 24),
+
+                        // How to Earn Section
+                        _buildHowToEarnSection(theme, rewardsState.config),
+
+                        const SizedBox(height: 24),
+
+                        // Recent Activity
+                        _buildRecentActivitySection(theme, rewardsState.rewardHistory),
+
+                        const SizedBox(height: 24),
+
+                        // Withdrawal History
+                        if (rewardsState.withdrawalHistory.isNotEmpty)
+                          _buildWithdrawalHistorySection(theme, rewardsState.withdrawalHistory),
+                      ]),
+                    ),
+                  ),
+                ],
               ),
       ),
     );

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons, ThemeMode;
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_helper.dart';
@@ -8,6 +8,10 @@ import '../../widgets/cupertino_app_bar.dart';
 import 'learn_provider.dart';
 import 'tiny_lesson_view.dart';
 import 'flashcards_view.dart';
+import 'vocabulary_quiz_screen.dart';
+import 'sentence_construction_screen.dart';
+import 'grammar_exercise_screen.dart';
+import 'structured_lesson_screen.dart' show StructuredLessonScreen, LessonContent;
 
 class LearnScreen extends ConsumerWidget {
   const LearnScreen({super.key});
@@ -99,6 +103,13 @@ class LearnScreen extends ConsumerWidget {
                 title: 'Vocabulary Quizzes',
                 description: 'Practice words from your corrections',
                 color: theme.orangeModule,
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => const VocabularyQuizScreen(),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 12),
               _buildLearningModuleCard(
@@ -108,6 +119,13 @@ class LearnScreen extends ConsumerWidget {
                 title: 'Sentence Construction',
                 description: 'Build sentences with corrected words',
                 color: theme.blueModule,
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => const SentenceConstructionScreen(),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 12),
               _buildLearningModuleCard(
@@ -117,6 +135,13 @@ class LearnScreen extends ConsumerWidget {
                 title: 'Grammar Exercises',
                 description: 'Improve grammar with your corrections',
                 color: theme.greenModule,
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => const GrammarExerciseScreen(),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 32),
@@ -139,6 +164,37 @@ class LearnScreen extends ConsumerWidget {
                 title: 'Beginner Spanish',
                 description: 'Learn basic Spanish phrases and grammar',
                 color: theme.yellowModule,
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => StructuredLessonScreen(
+                        lessonId: 'beginner_spanish',
+                        lessonTitle: 'Beginner Spanish',
+                        lessonDescription: 'Learn basic Spanish phrases and grammar',
+                        content: [
+                          LessonContent(
+                            title: 'Greetings',
+                            vocabulary: ['Hola', 'Buenos días', 'Buenas tardes', 'Buenas noches'],
+                            phrases: ['Hola, ¿cómo estás?', 'Buenos días, señor', 'Buenas noches'],
+                            grammarTips: ['Use "Buenos días" before noon', 'Use "Buenas tardes" in the afternoon'],
+                          ),
+                          LessonContent(
+                            title: 'Common Phrases',
+                            vocabulary: ['Por favor', 'Gracias', 'De nada', 'Perdón'],
+                            phrases: ['Por favor, ayúdame', 'Muchas gracias', 'De nada, no hay problema'],
+                            grammarTips: ['"Por favor" means "please"', '"De nada" is the response to "gracias"'],
+                          ),
+                          LessonContent(
+                            title: 'Questions',
+                            vocabulary: ['¿Qué?', '¿Cómo?', '¿Dónde?', '¿Cuándo?'],
+                            phrases: ['¿Qué es esto?', '¿Cómo estás?', '¿Dónde está el baño?'],
+                            grammarTips: ['Questions in Spanish start with ¿', 'Question words have accents'],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 12),
               _buildLearningModuleCard(
@@ -148,6 +204,37 @@ class LearnScreen extends ConsumerWidget {
                 title: 'Intermediate French',
                 description: 'Enhance your French with complex sentences',
                 color: theme.purpleModule,
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => StructuredLessonScreen(
+                        lessonId: 'intermediate_french',
+                        lessonTitle: 'Intermediate French',
+                        lessonDescription: 'Enhance your French with complex sentences',
+                        content: [
+                          LessonContent(
+                            title: 'Past Tense',
+                            vocabulary: ['J\'ai fait', 'Il est allé', 'Nous avons vu', 'Vous avez dit'],
+                            phrases: ['J\'ai fait mes devoirs', 'Il est allé au marché', 'Nous avons vu un film'],
+                            grammarTips: ['Use "avoir" for most verbs', 'Some verbs use "être" instead'],
+                          ),
+                          LessonContent(
+                            title: 'Future Tense',
+                            vocabulary: ['Je vais', 'Tu vas', 'Il va', 'Nous allons'],
+                            phrases: ['Je vais manger', 'Tu vas partir', 'Nous allons voyager'],
+                            grammarTips: ['Future tense uses "aller" + infinitive', 'This is called "futur proche"'],
+                          ),
+                          LessonContent(
+                            title: 'Conditional',
+                            vocabulary: ['Je voudrais', 'Il pourrait', 'Nous devrions', 'Vous aimeriez'],
+                            phrases: ['Je voudrais un café', 'Il pourrait venir', 'Nous devrions partir'],
+                            grammarTips: ['Conditional expresses politeness', 'Also used for hypothetical situations'],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -166,6 +253,15 @@ class LearnScreen extends ConsumerWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    // Calculate if background is dark to determine text color
+    final backgroundColor = color;
+    final luminance = backgroundColor.computeLuminance();
+    final isDarkBackground = luminance < 0.5;
+    final textColor = isDarkBackground ? CupertinoColors.white : AppColors.textPrimary;
+    final descriptionColor = isDarkBackground 
+        ? CupertinoColors.white.withOpacity(0.95) 
+        : AppColors.textSecondary;
+
     return Container(
       decoration: BoxDecoration(
         color: theme.cardBackground,
@@ -191,7 +287,7 @@ class LearnScreen extends ConsumerWidget {
                     Icon(
                       icon, 
                       size: 24,
-                      color: theme.isDark ? CupertinoColors.white : AppColors.textPrimary,
+                      color: textColor,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -199,7 +295,7 @@ class LearnScreen extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: theme.isDark ? CupertinoColors.white : AppColors.textPrimary,
+                        color: textColor,
                       ),
                     ),
                   ],
@@ -209,7 +305,7 @@ class LearnScreen extends ConsumerWidget {
                   description,
                   style: TextStyle(
                     fontSize: 14,
-                    color: theme.isDark ? CupertinoColors.white.withOpacity(0.9) : AppColors.textPrimary,
+                    color: descriptionColor,
                   ),
                 ),
               ],
@@ -221,8 +317,13 @@ class LearnScreen extends ConsumerWidget {
               width: double.infinity,
               child: CupertinoButton.filled(
                 onPressed: onTap,
+                color: theme.primary,
                 child: Text(
                   title == 'Tiny Lesson' ? 'Create Lesson' : 'View Cheatsheet',
+                  style: TextStyle(
+                    color: AppColors.textPrimary, // Dark text on yellow for contrast
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -239,6 +340,7 @@ class LearnScreen extends ConsumerWidget {
     required String title,
     required String description,
     required Color color,
+    required VoidCallback onTap,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -290,15 +392,17 @@ class LearnScreen extends ConsumerWidget {
                     horizontal: 16,
                     vertical: 6,
                   ),
-                  color: AppColors.primary,
+                  color: theme.primary,
                   borderRadius: BorderRadius.circular(6),
                   minSize: 32,
-                  onPressed: () {
-                    // TODO: Implement start lesson
-                  },
-                  child: const Text(
+                  onPressed: onTap,
+                  child: Text(
                     'Start',
-                    style: TextStyle(fontSize: 13),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textPrimary, // Dark text on yellow for contrast
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

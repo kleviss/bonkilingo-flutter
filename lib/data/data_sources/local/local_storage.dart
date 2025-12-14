@@ -105,6 +105,27 @@ class AppLocalStorage {
     }
   }
 
+  // ========== Lesson Progress ==========
+
+  Future<void> saveLessonProgress(List<Map<String, dynamic>> progress) async {
+    try {
+      await _lessonBox?.put(AppConstants.lessonProgressKey, progress);
+    } catch (e) {
+      throw CacheException('Failed to save lesson progress: $e');
+    }
+  }
+
+  List<Map<String, dynamic>> getLessonProgress() {
+    try {
+      final data = _lessonBox?.get(AppConstants.lessonProgressKey);
+      if (data == null) return [];
+      
+      return (data as List).map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (e) {
+      throw CacheException('Failed to get lesson progress: $e');
+    }
+  }
+
   // ========== General ==========
 
   Future<void> clearAll() async {
