@@ -10,12 +10,14 @@ class AuthRepository {
 
   /// Sign up with email and password
   Future<User?> signUp(String email, String password) async {
+    // Let exceptions bubble up so they can be properly handled
     final user = await _supabaseApi.signUp(email, password);
     return user;
   }
 
   /// Sign in with email and password
   Future<User?> signIn(String email, String password) async {
+    // Let exceptions bubble up so they can be properly handled
     final user = await _supabaseApi.signIn(email, password);
     return user;
   }
@@ -36,4 +38,3 @@ class AuthRepository {
     return _supabaseApi.getCurrentUser() != null;
   }
 }
-

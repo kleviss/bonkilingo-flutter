@@ -17,9 +17,18 @@ class SupabaseApi {
         email: email,
         password: password,
       );
+
+      if (response.user == null && response.session == null) {
+        throw AppAuthException('Failed to create account. Please try again.');
+      }
+
       return response.user;
-    } catch (e) {
-      throw AppAuthException(e.toString());
+    } on AuthException {
+      // Re-throw AuthException directly so it can be properly parsed
+      rethrow;
+    } catch (_) {
+      throw AppAuthException(
+          'An error occurred while creating your account. Please try again.');
     }
   }
 
@@ -30,8 +39,12 @@ class SupabaseApi {
         password: password,
       );
       return response.user;
-    } catch (e) {
-      throw AppAuthException(e.toString());
+    } on AuthException {
+      // Re-throw AuthException directly so it can be properly parsed
+      rethrow;
+    } catch (_) {
+      throw AppAuthException(
+          'An error occurred while signing in. Please try again.');
     }
   }
 
@@ -51,11 +64,8 @@ class SupabaseApi {
 
   Future<UserProfileModel?> getUserProfile(String userId) async {
     try {
-      final response = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', userId)
-          .single();
+      final response =
+          await _supabase.from('profiles').select().eq('id', userId).single();
 
       return UserProfileModel.fromJson(response);
     } catch (e) {
@@ -71,13 +81,10 @@ class SupabaseApi {
     Map<String, dynamic> updates,
   ) async {
     try {
-      await _supabase
-          .from('profiles')
-          .update({
-            ...updates,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', userId);
+      await _supabase.from('profiles').update({
+        ...updates,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', userId);
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -177,4 +184,3 @@ class SupabaseApi {
     }
   }
 }
-

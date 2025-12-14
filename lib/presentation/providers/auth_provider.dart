@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/utils/error_message_helper.dart';
 import 'providers.dart';
 
 // Current user provider
 final currentUserProvider = StreamProvider<User?>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
   final supabase = ref.watch(supabaseClientProvider);
-  
+
   return supabase.auth.onAuthStateChange.map((data) => data.session?.user);
 });
 
@@ -56,44 +56,43 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
   Future<void> signUp(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     try {
       final user = await _authRepository.signUp(email, password);
       state = state.copyWith(isLoading: false, user: user);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: ErrorMessageHelper.getUserFriendlyMessage(e),
       );
     }
   }
 
   Future<void> signIn(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     try {
       final user = await _authRepository.signIn(email, password);
       state = state.copyWith(isLoading: false, user: user);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: ErrorMessageHelper.getUserFriendlyMessage(e),
       );
     }
   }
 
   Future<void> signOut() async {
     state = state.copyWith(isLoading: true);
-    
+
     try {
       await _authRepository.signOut();
       state = AuthState(); // Reset to initial state
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: ErrorMessageHelper.getUserFriendlyMessage(e),
       );
     }
   }
 }
-
