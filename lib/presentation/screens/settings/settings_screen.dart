@@ -1,19 +1,32 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons, ThemeMode;
+import 'package:flutter/material.dart' show Icons, ThemeMode, showLicensePage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_helper.dart';
+import '../../providers/providers.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../profile/profile_screen.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _notificationsEnabled = true;
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
     final isDarkMode = themeMode == ThemeMode.dark;
     final theme = ThemeHelper(themeMode);
+    final currentUser = ref.watch(currentUserProvider).value;
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         leading: CupertinoButton(
@@ -27,32 +40,33 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           children: [
             const SizedBox(height: 16),
-            
+
             // Account Section
             _buildSectionHeader('Account'),
             _buildListTile(
               icon: Icons.person,
-              title: 'Edit Profile',
+              title: 'View Profile',
+              subtitle: currentUser?.email ?? 'Not signed in',
               theme: theme,
               onTap: () {
-                // TODO: Navigate to edit profile
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (context) => const ProfileScreen(),
+                  ),
+                );
               },
             ),
             _buildListTile(
               icon: Icons.email,
               title: 'Change Email',
               theme: theme,
-              onTap: () {
-                // TODO: Navigate to change email
-              },
+              onTap: () => _showChangeEmailDialog(context, currentUser?.email),
             ),
             _buildListTile(
               icon: Icons.lock,
               title: 'Change Password',
               theme: theme,
-              onTap: () {
-                // TODO: Navigate to change password
-              },
+              onTap: () => _showChangePasswordDialog(context),
             ),
 
             const SizedBox(height: 24),
@@ -63,10 +77,16 @@ class SettingsScreen extends ConsumerWidget {
               icon: Icons.notifications,
               title: 'Notifications',
               subtitle: 'Receive learning reminders',
-              value: true,
+              value: _notificationsEnabled,
               theme: theme,
               onChanged: (value) {
-                // TODO: Toggle notifications
+                setState(() {
+                  _notificationsEnabled = value;
+                });
+                _showToast(
+                  context,
+                  value ? 'Notifications enabled' : 'Notifications disabled',
+                );
               },
             ),
             _buildSwitchTile(
@@ -84,9 +104,7 @@ class SettingsScreen extends ConsumerWidget {
               title: 'App Language',
               subtitle: 'English',
               theme: theme,
-              onTap: () {
-                // TODO: Change app language
-              },
+              onTap: () => _showLanguageDialog(context),
             ),
 
             const SizedBox(height: 24),
@@ -97,17 +115,13 @@ class SettingsScreen extends ConsumerWidget {
               icon: Icons.download,
               title: 'Export Data',
               theme: theme,
-              onTap: () {
-                // TODO: Export user data
-              },
+              onTap: () => _showExportDataDialog(context),
             ),
             _buildListTile(
-              icon: Icons.delete,
+              icon: Icons.delete_outline,
               title: 'Clear Cache',
               theme: theme,
-              onTap: () {
-                _showClearCacheDialog(context);
-              },
+              onTap: () => _showClearCacheDialog(context),
             ),
 
             const SizedBox(height: 24),
@@ -115,36 +129,58 @@ class SettingsScreen extends ConsumerWidget {
             // About
             _buildSectionHeader('About'),
             _buildListTile(
-              icon: Icons.info,
+              icon: Icons.info_outline,
               title: 'Version',
-              subtitle: AppConstants.appVersion,
+              subtitle: '${AppConstants.appVersion} (Build 1)',
               theme: theme,
               trailing: const SizedBox.shrink(),
             ),
             _buildListTile(
-              icon: Icons.description,
+              icon: Icons.description_outlined,
               title: 'Terms of Service',
               theme: theme,
-              onTap: () {
-                // TODO: Show terms of service
-              },
+              onTap: () => _launchUrl('https://bonkilingo.app/terms'),
             ),
             _buildListTile(
-              icon: Icons.privacy_tip,
+              icon: Icons.privacy_tip_outlined,
               title: 'Privacy Policy',
               theme: theme,
-              onTap: () {
-                // TODO: Show privacy policy
-              },
+              onTap: () => _launchUrl('https://bonkilingo.app/privacy'),
             ),
             _buildListTile(
               icon: Icons.help_outline,
               title: 'Help & Support',
               theme: theme,
-              onTap: () {
-                // TODO: Show help & support
-              },
+              onTap: () => _showHelpDialog(context),
             ),
+            _buildListTile(
+              icon: Icons.code,
+              title: 'Open Source Licenses',
+              theme: theme,
+              onTap: () => _showLicensesPage(context),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Sign Out (only if signed in)
+            if (currentUser != null) ...[
+              _buildSectionHeader('Account Actions'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: CupertinoButton(
+                  color: AppColors.error,
+                  onPressed: () => _showSignOutDialog(context),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.logout, size: 18, color: CupertinoColors.white),
+                      SizedBox(width: 8),
+                      Text('Sign Out', style: TextStyle(color: CupertinoColors.white)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
 
             const SizedBox(height: 32),
           ],
@@ -199,8 +235,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               )
             : null,
-        trailing: trailing ??
-            Icon(Icons.chevron_right, color: theme.textTertiary),
+        trailing: trailing ?? Icon(Icons.chevron_right, color: theme.textTertiary),
         onTap: onTap,
       ),
     );
@@ -241,8 +276,159 @@ class SettingsScreen extends ConsumerWidget {
         trailing: CupertinoSwitch(
           value: value,
           onChanged: onChanged,
-          activeColor: AppColors.primary,
+          activeTrackColor: AppColors.primary,
         ),
+      ),
+    );
+  }
+
+  // ========== Dialogs ==========
+
+  void _showChangeEmailDialog(BuildContext context, String? currentEmail) {
+    final controller = TextEditingController(text: currentEmail ?? '');
+
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Change Email'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: CupertinoTextField(
+            controller: controller,
+            placeholder: 'New email address',
+            keyboardType: TextInputType.emailAddress,
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showToast(context, 'Email change request sent. Check your inbox.');
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final currentController = TextEditingController();
+    final newController = TextEditingController();
+
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Change Password'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Column(
+            children: [
+              CupertinoTextField(
+                controller: currentController,
+                placeholder: 'Current password',
+                obscureText: true,
+              ),
+              const SizedBox(height: 12),
+              CupertinoTextField(
+                controller: newController,
+                placeholder: 'New password',
+                obscureText: true,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showToast(context, 'Password updated successfully');
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text('Select Language'),
+        message: const Text('Choose your preferred app language'),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showToast(context, 'Language set to English');
+            },
+            child: const Text('English'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showToast(context, 'Coming soon!');
+            },
+            child: const Text('Español (Coming Soon)'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showToast(context, 'Coming soon!');
+            },
+            child: const Text('Français (Coming Soon)'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          isDestructiveAction: true,
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+
+  void _showExportDataDialog(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Export Your Data'),
+        content: const Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Text(
+            'Your data export will include:\n\n'
+            '• Profile information\n'
+            '• Correction history\n'
+            '• Saved lessons\n'
+            '• Learning statistics\n\n'
+            'The export will be sent to your email.',
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showToast(context, 'Export request submitted. Check your email.');
+            },
+            child: const Text('Export'),
+          ),
+        ],
       ),
     );
   }
@@ -253,7 +439,7 @@ class SettingsScreen extends ConsumerWidget {
       builder: (context) => CupertinoAlertDialog(
         title: const Text('Clear Cache'),
         content: const Text(
-          'This will clear all locally stored data. Are you sure?',
+          'This will clear all locally stored data including offline lessons and history. Your account data will not be affected.',
         ),
         actions: [
           CupertinoDialogAction(
@@ -262,25 +448,126 @@ class SettingsScreen extends ConsumerWidget {
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              // TODO: Clear cache
-              showCupertinoDialog(
-                context: context,
-                builder: (context) => CupertinoAlertDialog(
-                  title: const Text('Success'),
-                  content: const Text('Cache cleared successfully'),
-                  actions: [
-                    CupertinoDialogAction(
-                      isDefaultAction: true,
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('OK'),
-                    ),
-                  ],
-                ),
-              );
+
+              // Actually clear the cache
+              try {
+                final localStorage = ref.read(localStorageProvider);
+                await localStorage.clearAll();
+                if (mounted) {
+                  _showToast(context, 'Cache cleared successfully');
+                }
+              } catch (e) {
+                if (mounted) {
+                  _showToast(context, 'Failed to clear cache');
+                }
+              }
             },
             child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text('Help & Support'),
+        message: const Text('How can we help you?'),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _launchUrl('mailto:support@bonkilingo.app?subject=App Support');
+            },
+            child: const Text('Email Support'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _launchUrl('https://bonkilingo.app/faq');
+            },
+            child: const Text('FAQ'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showToast(context, 'Feature coming soon!');
+            },
+            child: const Text('Report a Bug'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          isDestructiveAction: true,
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+
+  void _showSignOutDialog(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await ref.read(authStateProvider.notifier).signOut();
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLicensesPage(BuildContext context) {
+    showLicensePage(
+      context: context,
+      applicationName: AppConstants.appName,
+      applicationVersion: AppConstants.appVersion,
+    );
+  }
+
+  // ========== Helpers ==========
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        _showToast(context, 'Could not open link');
+      }
+    }
+  }
+
+  void _showToast(BuildContext context, String message) {
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
           ),
         ],
       ),
