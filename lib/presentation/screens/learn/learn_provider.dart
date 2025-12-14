@@ -54,9 +54,10 @@ class LearnState {
     String? error,
     String? lessonToExpand,
     bool clearLessonToExpand = false,
+    bool clearActiveTool = false,
   }) {
     return LearnState(
-      activeTool: activeTool,
+      activeTool: clearActiveTool ? null : (activeTool ?? this.activeTool),
       situationInput: situationInput ?? this.situationInput,
       selectedLanguage: selectedLanguage ?? this.selectedLanguage,
       isLoading: isLoading ?? this.isLoading,
@@ -84,6 +85,11 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
   }
 
   void setActiveTool(LearnTool tool, {String? lessonToExpand}) {
+    // Don't clear if setting the same tool (prevents flickering)
+    if (state.activeTool == tool && lessonToExpand == null) {
+      return;
+    }
+    
     state = state.copyWith(
       activeTool: tool,
       lessonToExpand: lessonToExpand,
@@ -103,7 +109,7 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
 
   void clearActiveTool() {
     state = state.copyWith(
-      activeTool: null,
+      clearActiveTool: true,
       generatedLesson: null,
       situationInput: '',
     );
@@ -175,8 +181,10 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
   Future<void> _loadSavedLessons() async {
     try {
       final lessons = await _lessonRepository.getSavedLessons(_userId);
+      // copyWith will preserve activeTool automatically now
       state = state.copyWith(savedLessons: lessons);
     } catch (e) {
+      // copyWith will preserve activeTool automatically now
       state = state.copyWith(error: e.toString());
     }
   }

@@ -17,21 +17,11 @@ class FlashcardsView extends ConsumerStatefulWidget {
 
 class _FlashcardsViewState extends ConsumerState<FlashcardsView> {
   String? _expandedLessonId;
+  bool _hasInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // Auto-expand lesson if specified
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final learnState = ref.read(learnStateProvider);
-      if (learnState.lessonToExpand != null) {
-        setState(() {
-          _expandedLessonId = learnState.lessonToExpand;
-        });
-        // Clear the flag after expanding
-        ref.read(learnStateProvider.notifier).clearLessonToExpand();
-      }
-    });
   }
 
   @override
@@ -39,6 +29,20 @@ class _FlashcardsViewState extends ConsumerState<FlashcardsView> {
     final learnState = ref.watch(learnStateProvider);
     final themeMode = ref.watch(themeModeProvider);
     final theme = ThemeHelper(themeMode);
+
+    // Auto-expand lesson if specified (only once)
+    if (!_hasInitialized && learnState.lessonToExpand != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _expandedLessonId = learnState.lessonToExpand;
+            _hasInitialized = true;
+          });
+          // Clear the flag after expanding
+          ref.read(learnStateProvider.notifier).clearLessonToExpand();
+        }
+      });
+    }
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(

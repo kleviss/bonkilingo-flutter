@@ -11,7 +11,8 @@ import 'flashcards_view.dart';
 import 'vocabulary_quiz_screen.dart';
 import 'sentence_construction_screen.dart';
 import 'grammar_exercise_screen.dart';
-import 'structured_lesson_screen.dart' show StructuredLessonScreen, LessonContent;
+import 'structured_lesson_screen.dart'
+    show StructuredLessonScreen, LessonContent;
 
 class LearnScreen extends ConsumerWidget {
   const LearnScreen({super.key});
@@ -74,7 +75,8 @@ class LearnScreen extends ConsumerWidget {
                 theme,
                 icon: Icons.bookmark,
                 title: 'My Cheatsheet',
-                description: 'Access your saved lessons and vocabulary flashcards.',
+                description:
+                    'Access your saved lessons and vocabulary flashcards.',
                 color: theme.greenModule,
                 onTap: () {
                   ref
@@ -170,25 +172,62 @@ class LearnScreen extends ConsumerWidget {
                       builder: (context) => StructuredLessonScreen(
                         lessonId: 'beginner_spanish',
                         lessonTitle: 'Beginner Spanish',
-                        lessonDescription: 'Learn basic Spanish phrases and grammar',
+                        lessonDescription:
+                            'Learn basic Spanish phrases and grammar',
                         content: [
                           LessonContent(
                             title: 'Greetings',
-                            vocabulary: ['Hola', 'Buenos días', 'Buenas tardes', 'Buenas noches'],
-                            phrases: ['Hola, ¿cómo estás?', 'Buenos días, señor', 'Buenas noches'],
-                            grammarTips: ['Use "Buenos días" before noon', 'Use "Buenas tardes" in the afternoon'],
+                            vocabulary: [
+                              'Hola',
+                              'Buenos días',
+                              'Buenas tardes',
+                              'Buenas noches'
+                            ],
+                            phrases: [
+                              'Hola, ¿cómo estás?',
+                              'Buenos días, señor',
+                              'Buenas noches'
+                            ],
+                            grammarTips: [
+                              'Use "Buenos días" before noon',
+                              'Use "Buenas tardes" in the afternoon'
+                            ],
                           ),
                           LessonContent(
                             title: 'Common Phrases',
-                            vocabulary: ['Por favor', 'Gracias', 'De nada', 'Perdón'],
-                            phrases: ['Por favor, ayúdame', 'Muchas gracias', 'De nada, no hay problema'],
-                            grammarTips: ['"Por favor" means "please"', '"De nada" is the response to "gracias"'],
+                            vocabulary: [
+                              'Por favor',
+                              'Gracias',
+                              'De nada',
+                              'Perdón'
+                            ],
+                            phrases: [
+                              'Por favor, ayúdame',
+                              'Muchas gracias',
+                              'De nada, no hay problema'
+                            ],
+                            grammarTips: [
+                              '"Por favor" means "please"',
+                              '"De nada" is the response to "gracias"'
+                            ],
                           ),
                           LessonContent(
                             title: 'Questions',
-                            vocabulary: ['¿Qué?', '¿Cómo?', '¿Dónde?', '¿Cuándo?'],
-                            phrases: ['¿Qué es esto?', '¿Cómo estás?', '¿Dónde está el baño?'],
-                            grammarTips: ['Questions in Spanish start with ¿', 'Question words have accents'],
+                            vocabulary: [
+                              '¿Qué?',
+                              '¿Cómo?',
+                              '¿Dónde?',
+                              '¿Cuándo?'
+                            ],
+                            phrases: [
+                              '¿Qué es esto?',
+                              '¿Cómo estás?',
+                              '¿Dónde está el baño?'
+                            ],
+                            grammarTips: [
+                              'Questions in Spanish start with ¿',
+                              'Question words have accents'
+                            ],
                           ),
                         ],
                       ),
@@ -210,25 +249,62 @@ class LearnScreen extends ConsumerWidget {
                       builder: (context) => StructuredLessonScreen(
                         lessonId: 'intermediate_french',
                         lessonTitle: 'Intermediate French',
-                        lessonDescription: 'Enhance your French with complex sentences',
+                        lessonDescription:
+                            'Enhance your French with complex sentences',
                         content: [
                           LessonContent(
                             title: 'Past Tense',
-                            vocabulary: ['J\'ai fait', 'Il est allé', 'Nous avons vu', 'Vous avez dit'],
-                            phrases: ['J\'ai fait mes devoirs', 'Il est allé au marché', 'Nous avons vu un film'],
-                            grammarTips: ['Use "avoir" for most verbs', 'Some verbs use "être" instead'],
+                            vocabulary: [
+                              'J\'ai fait',
+                              'Il est allé',
+                              'Nous avons vu',
+                              'Vous avez dit'
+                            ],
+                            phrases: [
+                              'J\'ai fait mes devoirs',
+                              'Il est allé au marché',
+                              'Nous avons vu un film'
+                            ],
+                            grammarTips: [
+                              'Use "avoir" for most verbs',
+                              'Some verbs use "être" instead'
+                            ],
                           ),
                           LessonContent(
                             title: 'Future Tense',
-                            vocabulary: ['Je vais', 'Tu vas', 'Il va', 'Nous allons'],
-                            phrases: ['Je vais manger', 'Tu vas partir', 'Nous allons voyager'],
-                            grammarTips: ['Future tense uses "aller" + infinitive', 'This is called "futur proche"'],
+                            vocabulary: [
+                              'Je vais',
+                              'Tu vas',
+                              'Il va',
+                              'Nous allons'
+                            ],
+                            phrases: [
+                              'Je vais manger',
+                              'Tu vas partir',
+                              'Nous allons voyager'
+                            ],
+                            grammarTips: [
+                              'Future tense uses "aller" + infinitive',
+                              'This is called "futur proche"'
+                            ],
                           ),
                           LessonContent(
                             title: 'Conditional',
-                            vocabulary: ['Je voudrais', 'Il pourrait', 'Nous devrions', 'Vous aimeriez'],
-                            phrases: ['Je voudrais un café', 'Il pourrait venir', 'Nous devrions partir'],
-                            grammarTips: ['Conditional expresses politeness', 'Also used for hypothetical situations'],
+                            vocabulary: [
+                              'Je voudrais',
+                              'Il pourrait',
+                              'Nous devrions',
+                              'Vous aimeriez'
+                            ],
+                            phrases: [
+                              'Je voudrais un café',
+                              'Il pourrait venir',
+                              'Nous devrions partir'
+                            ],
+                            grammarTips: [
+                              'Conditional expresses politeness',
+                              'Also used for hypothetical situations'
+                            ],
                           ),
                         ],
                       ),
@@ -257,9 +333,10 @@ class LearnScreen extends ConsumerWidget {
     final backgroundColor = color;
     final luminance = backgroundColor.computeLuminance();
     final isDarkBackground = luminance < 0.5;
-    final textColor = isDarkBackground ? CupertinoColors.white : AppColors.textPrimary;
-    final descriptionColor = isDarkBackground 
-        ? CupertinoColors.white.withOpacity(0.95) 
+    final textColor =
+        isDarkBackground ? CupertinoColors.white : AppColors.textPrimary;
+    final descriptionColor = isDarkBackground
+        ? CupertinoColors.white.withOpacity(0.95)
         : AppColors.textSecondary;
 
     return Container(
@@ -285,7 +362,7 @@ class LearnScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Icon(
-                      icon, 
+                      icon,
                       size: 24,
                       color: textColor,
                     ),
@@ -321,7 +398,8 @@ class LearnScreen extends ConsumerWidget {
                 child: Text(
                   title == 'Tiny Lesson' ? 'Create Lesson' : 'View Cheatsheet',
                   style: TextStyle(
-                    color: AppColors.textPrimary, // Dark text on yellow for contrast
+                    color: AppColors
+                        .textPrimary, // Dark text on yellow for contrast
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -400,7 +478,8 @@ class LearnScreen extends ConsumerWidget {
                     'Start',
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textPrimary, // Dark text on yellow for contrast
+                      color: AppColors
+                          .textPrimary, // Dark text on yellow for contrast
                       fontWeight: FontWeight.w600,
                     ),
                   ),
