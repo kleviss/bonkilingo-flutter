@@ -23,6 +23,20 @@ class LessonRepository {
     return response.reply;
   }
 
+  /// Generate a lesson summary from conversation messages
+  Future<String> generateLessonFromConversation({
+    required List<Map<String, String>> messages,
+  }) async {
+    final systemPrompt =
+        'You are a helpful language tutor. Based on this conversation about language learning and corrections, create a concise learning summary with key vocabulary, useful phrases, and grammar tips. Format your response in three clear sections: 1) Key Vocabulary (5-8 relevant words with translations), 2) Useful Phrases (3-5 practical expressions), and 3) Grammar Tips (1-2 relevant grammar points with simple examples). Keep your response concise and focused on practical language use.';
+
+    final response = await _aiApi.chat(
+      messages: messages,
+      systemPrompt: systemPrompt,
+    );
+    return response.reply;
+  }
+
   /// Save lesson to database and local storage
   Future<LessonModel> saveLesson({
     required String userId,

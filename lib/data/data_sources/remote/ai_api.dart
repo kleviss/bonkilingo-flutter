@@ -84,6 +84,44 @@ class AIApi {
     }
   }
 
+  /// Chat with AI - flexible method for custom messages and system prompts
+  Future<LessonResponse> chat({
+    required List<Map<String, String>> messages,
+    String? systemPrompt,
+    String model = 'gpt-3.5-turbo',
+  }) async {
+    try {
+      final response = await _dioClient.post(
+        AppConstants.chatEndpoint,
+        data: {
+          'messages': messages,
+          'model': model,
+          if (systemPrompt != null) 'systemPrompt': systemPrompt,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return LessonResponse.fromJson(response.data);
+      } else {
+        throw ApiException(
+          message: 'Failed to get chat response',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw NetworkException('Connection timeout. Please check your internet.');
+      } else if (e.type == DioExceptionType.unknown) {
+        throw NetworkException('No internet connection');
+      } else {
+        throw ServerException(e.message ?? 'Server error occurred');
+      }
+    } catch (e) {
+      throw ApiException(message: e.toString());
+    }
+  }
+
   /// Detect language of input text
   Future<LanguageDetectionResponse> detectLanguage(
     LanguageDetectionRequest request,

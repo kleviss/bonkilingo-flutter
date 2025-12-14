@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons, ThemeMode;
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/theme_helper.dart';
 import '../../providers/theme_provider.dart';
@@ -51,6 +51,44 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
     }
   }
 
+  void _showSuccessDialog() {
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Success!'),
+        content: const Text(
+          'Lesson created and saved to your cheatsheet! +15 BONK points awarded.',
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final explanationState = ref.watch(explanationStateProvider);
@@ -61,6 +99,24 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
+
+    // Show success dialog when lesson is created
+    if (explanationState.lessonCreated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showSuccessDialog();
+        // Reset the flag
+        ref.read(explanationStateProvider.notifier).resetLessonCreated();
+      });
+    }
+
+    // Show error dialog if there's an error
+    if (explanationState.error != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorDialog(explanationState.error!);
+        // Clear error after showing
+        ref.read(explanationStateProvider.notifier).clearError();
+      });
+    }
 
     return CupertinoPageScaffold(
       backgroundColor: theme.background,
@@ -113,7 +169,8 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
 
             // Messages
             Expanded(
-              child: explanationState.isLoading && explanationState.messages.isEmpty
+              child: explanationState.isLoading &&
+                      explanationState.messages.isEmpty
                   ? const Center(
                       child: CupertinoActivityIndicator(),
                     )
@@ -160,7 +217,8 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: CupertinoColors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
                 children: [
@@ -229,7 +287,8 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
                         width: 1,
                       ),
                     ),
-                    onChanged: (_) => setState(() {}), // Rebuild to update button state
+                    onChanged: (_) =>
+                        setState(() {}), // Rebuild to update button state
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
@@ -275,4 +334,3 @@ class _ExplanationScreenState extends ConsumerState<ExplanationScreen> {
     );
   }
 }
-

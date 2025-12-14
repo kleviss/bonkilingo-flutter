@@ -1,16 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/auth_provider.dart';
 
 final explanationStateProvider =
     StateNotifierProvider<ExplanationStateNotifier, ExplanationState>(
   (ref) {
     final lessonRepository = ref.watch(lessonRepositoryProvider);
     final userProfileState = ref.watch(userProfileStateProvider.notifier);
+    final currentUser = ref.watch(currentUserProvider).value;
 
     return ExplanationStateNotifier(
       lessonRepository,
       userProfileState,
+      currentUser?.id,
     );
   },
 );
@@ -26,12 +29,14 @@ class ExplanationState {
   final List<Message> messages;
   final bool isLoading;
   final bool isCreatingLesson;
+  final bool lessonCreated;
   final String? error;
 
   ExplanationState({
     this.messages = const [],
     this.isLoading = false,
     this.isCreatingLesson = false,
+    this.lessonCreated = false,
     this.error,
   });
 
@@ -39,13 +44,16 @@ class ExplanationState {
     List<Message>? messages,
     bool? isLoading,
     bool? isCreatingLesson,
+    bool? lessonCreated,
     String? error,
+    bool clearError = false,
   }) {
     return ExplanationState(
       messages: messages ?? this.messages,
       isLoading: isLoading ?? this.isLoading,
       isCreatingLesson: isCreatingLesson ?? this.isCreatingLesson,
-      error: error,
+      lessonCreated: lessonCreated ?? this.lessonCreated,
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }
@@ -53,10 +61,12 @@ class ExplanationState {
 class ExplanationStateNotifier extends StateNotifier<ExplanationState> {
   final _lessonRepository;
   final _userProfileState;
+  final String? _userId;
 
   ExplanationStateNotifier(
     this._lessonRepository,
     this._userProfileState,
+    this._userId,
   ) : super(ExplanationState());
 
   Future<void> initialize(String correctedText, String inputText) async {
@@ -130,28 +140,58 @@ class ExplanationStateNotifier extends StateNotifier<ExplanationState> {
   }
 
   Future<void> createTinyLesson() async {
-    state = state.copyWith(isCreatingLesson: true);
+    if (state.messages.isEmpty) return;
+
+    state = state.copyWith(isCreatingLesson: true, clearError: true);
 
     try {
-      // Create lesson summary from conversation
-      final conversationContent = state.messages
-          .map((m) => '${m.sender == "user" ? "User" : "Tutor"}: ${m.text}')
-          .join('\n\n');
+      // Convert messages to API format
+      final apiMessages = state.messages.map((m) => {
+        'role': m.sender == 'user' ? 'user' : 'assistant',
+        'content': m.text,
+      }).toList();
 
-      // Award points
+      // Generate lesson summary from conversation
+      final lessonContent = await _lessonRepository.generateLessonFromConversation(
+        messages: apiMessages,
+      );
+
+      // Create lesson title from conversation
+      final firstUserMessage = state.messages
+          .firstWhere((m) => m.sender == 'user', orElse: () => state.messages.first);
+      final title = firstUserMessage.text.length > 30
+          ? '${firstUserMessage.text.substring(0, 30)}...'
+          : firstUserMessage.text;
+      final lessonTitle = 'Lesson from chat: $title';
+
+      // Save the lesson
+      await _lessonRepository.saveLesson(
+        userId: _userId ?? '',
+        title: lessonTitle,
+        content: lessonContent,
+      );
+
+      // Award points for creating lesson
       _userProfileState.addBonkPoints(15);
 
       state = state.copyWith(
         isCreatingLesson: false,
+        lessonCreated: true,
       );
-
-      // Show success feedback (you could add this to state)
     } catch (e) {
       state = state.copyWith(
         isCreatingLesson: false,
         error: e.toString(),
       );
     }
+  }
+
+  void resetLessonCreated() {
+    state = state.copyWith(lessonCreated: false);
+  }
+
+  void clearError() {
+    state = state.copyWith(clearError: true);
   }
 }
 
