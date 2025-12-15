@@ -29,3 +29,4 @@ class LessonProgressModel with _$LessonProgressModel {
   factory LessonProgressModel.fromJson(Map<String, dynamic> json) =>
       _$LessonProgressModelFromJson(json);
 }
+
