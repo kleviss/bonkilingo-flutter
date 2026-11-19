@@ -1,0 +1,4 @@
+// The keyboard's version must match the app's, so read Flutter's
+// FLUTTER_BUILD_NAME / FLUTTER_BUILD_NUMBER (set from pubspec.yaml or
+// --build-name / --build-number) like Runner does.
+#include "../Flutter/Generated.xcconfig"

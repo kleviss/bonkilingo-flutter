@@ -31,15 +31,24 @@ These are needed for TestFlight anyway.
 
 ## Phase 1: Installable keyboard that types (3–5 days)
 
-- [ ] Add `BonkilingoKeyboard` extension target (Swift/UIKit) to `ios/Runner.xcodeproj`,
-      bundle ID `com.bonkilingo.app.keyboard`; fix build phase order per Flutter docs; no pods.
-- [ ] QWERTY layout (letters, shift/caps, numbers/symbols page, space, return, delete with repeat),
-      globe key when `needsInputModeSwitchKey`, light/dark appearance.
-- [ ] Bonkilingo bar above the keys with a disabled **Correct** button and a hint when Full Access is off.
-- [ ] `RequestsOpenAccess = YES` in the extension Info.plist.
-- [ ] Spike: log `documentContextBeforeInput/AfterInput` lengths in WhatsApp, iMessage, Gmail, Instagram
-      (typed vs pasted, short vs long) on a real iPhone. **This decides how far the MVP can go.**
+- [x] Add `BonkilingoKeyboard` extension target (Swift/UIKit) to `ios/Runner.xcodeproj`,
+      bundle ID `com.bonkilingo.app.keyboard`; embed phase before "Run Script" per Flutter docs; no pods.
+      Version comes from Flutter's `Generated.xcconfig`, so it always matches the app.
+- [x] Layouts: German QWERTZ (ü ö ä, default) and English QWERTY, toggled with the DE/EN button;
+      shift (double tap = caps lock), numbers and symbols pages, delete with repeat (words after a while),
+      long-press variants (ß, é, ç …), double-space period, autocapitalization per text field,
+      return key title from the field, globe key when `needsInputModeSwitchKey`, light/dark appearance.
+- [x] Bonkilingo bar above the keys with a disabled **Correct** button and a hint (Full Access off,
+      Correct switched off in the app, or coming soon).
+- [x] `RequestsOpenAccess = YES` in the extension Info.plist; `PrivacyInfo.xcprivacy` for UserDefaults.
+- [x] Verified in the iOS 26.5 simulator: keyboard installs with the app, can be added in Settings,
+      types (German and English), variants, numbers page and delete work.
+- [ ] Spike: on a real iPhone, long-press "Bonkilingo" in the bar to show how many characters the
+      keyboard sees before/after the cursor (counts only), in WhatsApp, iMessage, Gmail, Instagram
+      (typed vs pasted, short vs long). **This decides how far the MVP can go.**
 - [ ] Measure memory with Instruments on a device.
+- [ ] Check on a device that "Open iPhone Settings" in the app's keyboard guide opens Bonkilingo's own
+      Settings page (in the simulator it opens the Settings home screen).
 - **Done when:** the keyboard installs from a TestFlight build, types normally in all four apps, and the context-window findings are written into the architecture doc.
 
 ## Phase 2: Correct button MVP (3–5 days)
