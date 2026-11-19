@@ -23,6 +23,10 @@ class CupertinoAppBar extends ConsumerWidget implements ObstructingPreferredSize
     final currentUser = ref.watch(currentUserProvider).value;
 
     return CupertinoNavigationBar(
+      // Used by tab roots that MainNavigation keeps alive together in an
+      // IndexedStack. With the default hero tag, every push from a tab hits
+      // "multiple heroes that share the same tag".
+      transitionBetweenRoutes: false,
       // Show title on the left like web app
       leading: leading ?? Padding(
         padding: const EdgeInsets.only(left: 0),

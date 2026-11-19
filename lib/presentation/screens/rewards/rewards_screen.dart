@@ -37,6 +37,9 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        // Tab root kept alive in MainNavigation's IndexedStack next to the
+        // other tabs' bars; a shared default hero tag breaks every push.
+        transitionBetweenRoutes: false,
         middle: const Text('BONK Rewards'),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
