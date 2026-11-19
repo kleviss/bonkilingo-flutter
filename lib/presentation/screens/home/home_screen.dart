@@ -244,6 +244,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
 
+              if (homeState.error != null && !homeState.isLoading) ...[
+                const SizedBox(height: 12),
+                Text(
+                  homeState.error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: CupertinoColors.systemRed,
+                  ),
+                ),
+              ],
+
               const SizedBox(height: 24),
 
               // Corrections Section

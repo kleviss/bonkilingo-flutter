@@ -28,14 +28,7 @@ class AIApi {
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw NetworkException('Connection timeout. Please check your internet.');
-      } else if (e.type == DioExceptionType.unknown) {
-        throw NetworkException('No internet connection');
-      } else {
-        throw ServerException(e.message ?? 'Server error occurred');
-      }
+      throw _mapDioException(e);
     } catch (e) {
       throw ApiException(message: e.toString());
     }
@@ -71,14 +64,7 @@ class AIApi {
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw NetworkException('Connection timeout. Please check your internet.');
-      } else if (e.type == DioExceptionType.unknown) {
-        throw NetworkException('No internet connection');
-      } else {
-        throw ServerException(e.message ?? 'Server error occurred');
-      }
+      throw _mapDioException(e);
     } catch (e) {
       throw ApiException(message: e.toString());
     }
@@ -109,14 +95,7 @@ class AIApi {
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw NetworkException('Connection timeout. Please check your internet.');
-      } else if (e.type == DioExceptionType.unknown) {
-        throw NetworkException('No internet connection');
-      } else {
-        throw ServerException(e.message ?? 'Server error occurred');
-      }
+      throw _mapDioException(e);
     } catch (e) {
       throw ApiException(message: e.toString());
     }
@@ -141,17 +120,34 @@ class AIApi {
         );
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw NetworkException('Connection timeout. Please check your internet.');
-      } else if (e.type == DioExceptionType.unknown) {
-        throw NetworkException('No internet connection');
-      } else {
-        throw ServerException(e.message ?? 'Server error occurred');
-      }
+      throw _mapDioException(e);
     } catch (e) {
       throw ApiException(message: e.toString());
     }
   }
-}
 
+  /// Turns a Dio error into the exception the UI knows how to show. For 4xx
+  /// responses the backend's `error` field is written for users (sign in
+  /// again, hourly limit reached, text too long), so it is passed through.
+  Exception _mapDioException(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+        return NetworkException('Connection timeout. Please check your internet.');
+      case DioExceptionType.connectionError:
+      case DioExceptionType.unknown:
+        return NetworkException('No internet connection');
+      default:
+        break;
+    }
+    final status = e.response?.statusCode;
+    final data = e.response?.data;
+    final serverMessage =
+        data is Map && data['error'] is String ? data['error'] as String : null;
+    if (status != null && status >= 400 && status < 500 && serverMessage != null) {
+      return ApiException(message: serverMessage, statusCode: status, data: data);
+    }
+    return ServerException(e.message ?? 'Server error occurred');
+  }
+}

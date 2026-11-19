@@ -21,6 +21,14 @@ class ErrorMessageHelper {
       return _parseServerException(error);
     }
 
+    // 4xx from our API: the backend writes these messages for users.
+    if (error is ApiException &&
+        error.statusCode != null &&
+        error.statusCode! >= 400 &&
+        error.statusCode! < 500) {
+      return error.message;
+    }
+
     // Try to parse string errors that might contain Supabase error info
     final errorString = error.toString();
     return _parseStringError(errorString);
