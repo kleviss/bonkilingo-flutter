@@ -15,14 +15,19 @@ Estimates assume one developer familiar with the codebase. "Days" means focused 
 
 These are needed for TestFlight anyway.
 
-- [ ] Deploy `bonkilingo-backend` to an HTTPS host (Vercel config already in the repo); set
-      `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` there.
-- [ ] Point `API_BASE_URL` in the release `env.json` at it.
-- [ ] Add auth + per-user rate limiting to `/api/correct`, `/api/chat`, `/api/detect-language`
-      (Supabase JWT from the app). Restrict CORS to the web app's origin.
-- [ ] Use the `language` field in the correction prompt (currently ignored).
-- [ ] Stop logging user text in the backend.
-- **Done when:** the Flutter app corrects text against the hosted backend while signed in, and unauthenticated calls are rejected.
+- [x] Deploy `bonkilingo-backend` to HTTPS: Vercel project `bonkilingo-backend` (team
+      klv-bonk's projects), https://bonkilingo-backend.vercel.app, env vars set in Vercel.
+      Not connected to GitHub yet, so deploy with `vercel deploy --prod` from the backend repo.
+- [x] Point `API_BASE_URL` in `env.json` at it.
+- [x] Optional Supabase JWT on `/api/correct`, `/api/chat`, `/api/detect-language`; per-user
+      hourly limits in `reward_rate_limits`, smaller per-IP limits for signed-out users
+      (`ANON_AI_REQUESTS_PER_HOUR=0` makes sign-in required). CORS allows no browser origin by default.
+- [x] Use the `language` field in the correction prompt (and the app now sends the detected language or `auto`).
+- [x] Stop logging user text in the backend (and in release builds of the app).
+- [ ] Verify the signed-in path end to end (needs Supabase values in `env.json` and a test account).
+- **Done when:** the Flutter app corrects text against the hosted backend while signed in, and signed-out calls are limited.
+  Decision taken: signed-out corrections stay allowed (rate-limited) so the app's current
+  try-before-sign-in flow keeps working.
 
 ## Phase 1: Installable keyboard that types (3–5 days)
 
