@@ -9,13 +9,12 @@ class LanguageConstants {
   ];
 
   static const List<AIModel> availableModels = [
-    AIModel(value: 'gpt-4o-mini', label: 'GPT-4o Mini'),
-    AIModel(value: 'gpt-4o', label: 'GPT-4o'),
-    AIModel(value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo'),
+    AIModel(value: 'gpt-6-luna', label: 'GPT-6 Luna'),
+    AIModel(value: 'gpt-6.1-terra', label: 'GPT-6.1 Terra'),
   ];
 
   static const String defaultLanguage = 'english';
-  static const String defaultModel = 'gpt-3.5-turbo';
+  static const String defaultModel = 'gpt-6-luna';
 
   LanguageConstants._();
 }

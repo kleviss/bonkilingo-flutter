@@ -8,7 +8,7 @@ class LessonRequest with _$LessonRequest {
   const factory LessonRequest({
     required String situation,
     required String language,
-    @Default('gpt-3.5-turbo') String model,
+    @Default('gpt-6-luna') String model,
   }) = _LessonRequest;
 
   factory LessonRequest.fromJson(Map<String, dynamic> json) =>
