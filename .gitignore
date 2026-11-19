@@ -110,3 +110,5 @@ test/.test_coverage.dart
 env.json
 .vscode/launch.json
 .cursor/
+# FVM local SDK cache
+.fvm/
