@@ -2,3 +2,7 @@
 // FLUTTER_BUILD_NAME / FLUTTER_BUILD_NUMBER (set from pubspec.yaml or
 // --build-name / --build-number) like Runner does.
 #include "../Flutter/Generated.xcconfig"
+
+// Backend the Correct button calls (bonkilingo-backend on Vercel). Must be
+// HTTPS. "$()" keeps "//" from starting an xcconfig comment.
+BONKILINGO_API_BASE_URL = https:/$()/bonkilingo-backend.vercel.app

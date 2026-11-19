@@ -11,7 +11,11 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		25B2E1F77ED2BD17517FFCB1 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59334DF1069DB21721A032F7 /* KeyboardView.swift */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
+		373F2E00F9B49E9DEBEF8D14 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B95F8756FB7A0BE6DA79B22 /* APIClient.swift */; };
+		37FF9A65673BC7DC1289EF13 /* CorrectionPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44D688B75D64ED68C462508 /* CorrectionPanel.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		4120633BD75A8A41BC1BF54E /* KeyboardTextEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0F2F09DFB53FD039672AD9 /* KeyboardTextEditingTests.swift */; };
+		70BD428C1482E0111CF6A5D6 /* TextEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D75EE09F24339719176B967 /* TextEditing.swift */; };
 		745AD46745CE3E6C26251D11 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 78C704042B13C88F43C008E6 /* PrivacyInfo.xcprivacy */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		76047E4C2FCB75B3EFED88F3 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0B01397D43AA71AD92338E /* KeyboardViewController.swift */; };
@@ -21,6 +25,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		9B74D0B65F75BFF34337DFC4 /* BonkilingoBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD2B010C9A031F57808AC5 /* BonkilingoBar.swift */; };
+		B252E55D3C6D98ADFE034092 /* TextEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D75EE09F24339719176B967 /* TextEditing.swift */; };
 		C34A2C4CCE33BF583F124898 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1856A6B6F0CFB7A011AC910 /* Pods_RunnerTests.framework */; };
 		D81E9B4B0D23D696688C68B3 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 075DCE457E8970B092B32F38 /* Pods_Runner.framework */; };
 		DEFFD3BC73B2F38CCBD8C571 /* KeyboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE0CF81A201CED676296E7B /* KeyboardLayout.swift */; };
@@ -81,6 +86,8 @@
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3B95F8756FB7A0BE6DA79B22 /* APIClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		3D75EE09F24339719176B967 /* TextEditing.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextEditing.swift; sourceTree = "<group>"; };
 		59334DF1069DB21721A032F7 /* KeyboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
 		6A9830DBBCBEC0977E87DF8F /* BonkilingoKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BonkilingoKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E388D24EE145CECEB3CDCB4 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -100,6 +107,8 @@
 		A19461950AB9EA6115F025FB /* Settings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		A5ADC594D06F51896DD43321 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C69231B43D59FEB204DC18A3 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D44D688B75D64ED68C462508 /* CorrectionPanel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CorrectionPanel.swift; sourceTree = "<group>"; };
+		DB0F2F09DFB53FD039672AD9 /* KeyboardTextEditingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyboardTextEditingTests.swift; sourceTree = "<group>"; };
 		E53B44D5814D0669C8F5C3F3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		ECAD2B010C9A031F57808AC5 /* BonkilingoBar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BonkilingoBar.swift; sourceTree = "<group>"; };
 		ED455D159122A9920F4EF4A2 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
@@ -137,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				331C807B294A618700263BE5 /* RunnerTests.swift */,
+				DB0F2F09DFB53FD039672AD9 /* KeyboardTextEditingTests.swift */,
 			);
 			path = RunnerTests;
 			sourceTree = "<group>";
@@ -210,6 +220,9 @@
 				78C704042B13C88F43C008E6 /* PrivacyInfo.xcprivacy */,
 				C69231B43D59FEB204DC18A3 /* Info.plist */,
 				2178B0439C1196897551EE79 /* Keyboard.xcconfig */,
+				3D75EE09F24339719176B967 /* TextEditing.swift */,
+				3B95F8756FB7A0BE6DA79B22 /* APIClient.swift */,
+				D44D688B75D64ED68C462508 /* CorrectionPanel.swift */,
 			);
 			name = BonkilingoKeyboard;
 			path = BonkilingoKeyboard;
@@ -472,6 +485,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */,
+				70BD428C1482E0111CF6A5D6 /* TextEditing.swift in Sources */,
+				4120633BD75A8A41BC1BF54E /* KeyboardTextEditingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,6 +509,9 @@
 				DEFFD3BC73B2F38CCBD8C571 /* KeyboardLayout.swift in Sources */,
 				9B74D0B65F75BFF34337DFC4 /* BonkilingoBar.swift in Sources */,
 				F5A8566AC5E45165F95614A5 /* Settings.swift in Sources */,
+				B252E55D3C6D98ADFE034092 /* TextEditing.swift in Sources */,
+				373F2E00F9B49E9DEBEF8D14 /* APIClient.swift in Sources */,
+				37FF9A65673BC7DC1289EF13 /* CorrectionPanel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

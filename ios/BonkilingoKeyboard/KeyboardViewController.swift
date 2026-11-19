@@ -2,8 +2,9 @@ import UIKit
 import os
 
 /// The Bonkilingo keyboard: a full German/English keyboard with a Bonkilingo
-/// bar on top. Phase 1 of BONKILINGO_ROADMAP.md: it types; the Correct
-/// button is shown but not wired to the API yet (Phase 2).
+/// bar on top. Correct sends the selection (or the text around the cursor)
+/// to the backend and offers to replace it with the correction
+/// (BONKILINGO_ROADMAP.md, Phase 2).
 ///
 /// Plain UIKit on purpose: keyboard extensions get a small, unpublished
 /// memory budget, so no Flutter engine and no CocoaPods dependencies.
@@ -26,6 +27,12 @@ final class KeyboardViewController: UIInputViewController {
 
   private var deleteTimer: Timer?
   private var deleteRepeats = 0
+
+  private let panel = CorrectionPanel()
+  private let api = APIClient.fromBundle()
+  private var correctionTask: Task<Void, Never>?
+  /// The text that was sent and its correction, while the panel offers Replace.
+  private var pendingCorrection: (captured: CapturedText, corrected: String)?
 
   private let log = Logger(subsystem: "com.bonkilingo.app.keyboard", category: "context")
 
@@ -71,9 +78,23 @@ final class KeyboardViewController: UIInputViewController {
       height,
     ])
 
+    // The panel covers the keys while a correction is shown.
+    panel.translatesAutoresizingMaskIntoConstraints = false
+    panel.isHidden = true
+    view.addSubview(panel)
+    NSLayoutConstraint.activate([
+      panel.topAnchor.constraint(equalTo: keysView.topAnchor),
+      panel.leadingAnchor.constraint(equalTo: keysView.leadingAnchor),
+      panel.trailingAnchor.constraint(equalTo: keysView.trailingAnchor),
+      panel.bottomAnchor.constraint(equalTo: keysView.bottomAnchor),
+    ])
+    panel.onClose = { [weak self] in self?.closePanel() }
+    panel.onReplace = { [weak self] in self?.replaceWithCorrection() }
+    panel.onCopy = { [weak self] in self?.copyCorrection() }
+
     bar.onToggleLayout = { [weak self] in self?.toggleLetterLayout() }
     bar.onToggleContextReadout = { [weak self] in self?.toggleContextReadout() }
-    bar.onCorrect = { [weak self] in self?.updateBar() }
+    bar.onCorrect = { [weak self] in self?.startCorrection() }
 
     reloadKeys()
   }
@@ -142,6 +163,7 @@ final class KeyboardViewController: UIInputViewController {
     appliedDark = dark
     keysView.colors = KeyColors.make(dark: dark)
     bar.apply(dark: dark)
+    panel.apply(dark: dark)
   }
 
   private func returnTitle() -> String? {
@@ -303,7 +325,7 @@ final class KeyboardViewController: UIInputViewController {
       let after = textDocumentProxy.documentContextAfterInput?.count ?? 0
       let selected = textDocumentProxy.selectedText?.count ?? 0
       bar.setStatus("Sees \(before) before · \(after) after · \(selected) selected")
-      log.info("context before=\(before) after=\(after) selected=\(selected)")
+      log.notice("context before=\(before) after=\(after) selected=\(selected)")
       bar.setCorrect(visible: false, enabled: false)
       return
     }
@@ -314,11 +336,118 @@ final class KeyboardViewController: UIInputViewController {
     } else if !hasFullAccess {
       bar.setStatus("Allow Full Access in Settings to use Correct")
       bar.setCorrect(visible: true, enabled: false)
-    } else {
-      bar.setStatus("Correct is coming soon")
+    } else if api == nil {
+      bar.setStatus("Correct isn't configured in this build")
       bar.setCorrect(visible: true, enabled: false)
+    } else {
+      bar.setStatus("Select text, or tap Correct for the whole message")
+      bar.setCorrect(visible: true, enabled: panel.isHidden)
     }
   }
+
+  // MARK: - Correct
+
+  private func startCorrection() {
+    guard let api, hasFullAccess, correctionsEnabled else { return }
+    correctionTask?.cancel()
+    pendingCorrection = nil
+
+    guard let captured = TextCapture.capture(from: ProxyDocument(proxy: textDocumentProxy)) else {
+      showPanel(.message("Write something first, or select the text to correct, then tap Correct.", canCopy: false))
+      return
+    }
+    showPanel(.loading)
+
+    correctionTask = Task { @MainActor [weak self] in
+      do {
+        let corrected = try await api.correct(captured.core)
+        guard let self, !Task.isCancelled else { return }
+        let restored = captured.restoringWhitespace(corrected)
+        if restored == captured.full {
+          self.panel.show(.unchanged)
+          return
+        }
+        self.pendingCorrection = (captured, corrected)
+        let note = captured.mayBeCutOff
+          ? "The keyboard may only see the end of a long message. Select all of it to correct everything."
+          : nil
+        self.panel.show(.result(original: captured.core, corrected: corrected, note: note))
+      } catch is CancellationError {
+        return
+      } catch let error as CorrectionError {
+        self?.panel.show(.message(error.message, canCopy: false))
+      } catch {
+        self?.panel.show(.message("Bonkilingo couldn't correct this right now. Try again.", canCopy: false))
+      }
+    }
+  }
+
+  private func replaceWithCorrection() {
+    guard let pending = pendingCorrection else { return }
+    let document = ProxyDocument(proxy: textDocumentProxy)
+
+    // Only replace what the correction was made for.
+    guard let current = TextCapture.capture(from: document), current == pending.captured else {
+      showPanel(.message("Your text changed since you tapped Correct. Tap Correct again.", canCopy: true))
+      return
+    }
+
+    Replacement.apply(Replacement.edits(for: pending.captured, corrected: pending.corrected), to: document)
+    closePanel(keepingCorrection: true)
+
+    // The host app applies edits asynchronously; check the result shortly after.
+    let expected = pending.captured.restoringWhitespace(pending.corrected)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+      guard let self else { return }
+      let now = TextCapture.capture(from: ProxyDocument(proxy: self.textDocumentProxy))
+      let visible = (now?.before ?? "") + (now?.after ?? "")
+      let tail = String(expected.suffix(min(expected.count, 24)))
+      if pending.captured.scope == .surroundingText, !tail.isEmpty, !visible.contains(tail) {
+        self.showPanel(.message("This app didn't accept the replacement. Tap Copy and paste the correction instead.", canCopy: true))
+      } else {
+        self.pendingCorrection = nil
+      }
+    }
+  }
+
+  private func copyCorrection() {
+    guard let pending = pendingCorrection else { return }
+    UIPasteboard.general.string = pending.captured.restoringWhitespace(pending.corrected)
+    closePanel()
+    bar.setStatus("Copied. Paste it where you need it.")
+  }
+
+  private func showPanel(_ state: CorrectionPanel.State) {
+    panel.show(state)
+    panel.isHidden = false
+    keysView.isHidden = true
+    bar.setCorrect(visible: true, enabled: false)
+  }
+
+  private func closePanel(keepingCorrection: Bool = false) {
+    correctionTask?.cancel()
+    correctionTask = nil
+    if !keepingCorrection { pendingCorrection = nil }
+    panel.isHidden = true
+    keysView.isHidden = false
+    updateBar()
+  }
+}
+
+/// UITextDocumentProxy as the TextDocument the Correct logic works on.
+final class ProxyDocument: TextDocument {
+  private let proxy: UITextDocumentProxy
+
+  init(proxy: UITextDocumentProxy) {
+    self.proxy = proxy
+  }
+
+  var documentContextBeforeInput: String? { proxy.documentContextBeforeInput }
+  var documentContextAfterInput: String? { proxy.documentContextAfterInput }
+  var selectedText: String? { proxy.selectedText }
+  func insertText(_ text: String) { proxy.insertText(text) }
+  func deleteBackward() { proxy.deleteBackward() }
+  func adjustTextPosition(byCharacterOffset offset: Int) { proxy.adjustTextPosition(byCharacterOffset: offset) }
 }
 
 final class ClickingInputView: UIInputView, UIInputViewAudioFeedback {
