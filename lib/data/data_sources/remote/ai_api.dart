@@ -88,7 +88,7 @@ class AIApi {
   Future<LessonResponse> chat({
     required List<Map<String, String>> messages,
     String? systemPrompt,
-    String model = 'gpt-3.5-turbo',
+    String model = 'gpt-6-luna',
   }) async {
     try {
       final response = await _dioClient.post(
