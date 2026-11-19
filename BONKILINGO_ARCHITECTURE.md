@@ -83,7 +83,7 @@ flowchart LR
 | Without Full Access? | No network, no writes to the shared App Group container (reads OK), no pasteboard. The keyboard must still type (guideline 4.4.1). | Verified |
 | Share login with the app? | Yes, via a shared Keychain access group (`H9DTLRUW87.com.bonkilingo.shared`) or App Group. Both targets need the entitlement. | Verified ([Apple](https://developer.apple.com/documentation/security/sharing-access-to-keychain-items-among-a-collection-of-apps)) |
 | Where is it unavailable? | Secure (password) fields, phone-pad fields, and any app that rejects third-party keyboards via `application(_:shouldAllowExtensionPointIdentifier:)` (common in banking apps). WhatsApp/iMessage/Gmail/Instagram are expected to allow it. | Mechanism verified; per-app behavior is an assumption |
-| Memory? | No published limit. Plan for ≤ 40–50 MB. **No Flutter engine in the keyboard** (Flutter docs advise ≥100 MB for Flutter UI in extensions). | Assumption + [Flutter docs](https://docs.flutter.dev/platform-integration/ios/app-extensions) |
+| Memory? | No published limit. Plan for ≤ 40–50 MB. **No Flutter engine in the keyboard** (Flutter docs advise ≥100 MB for Flutter UI in extensions). Measured: the Phase 1 keyboard uses **7.1 MiB** physical footprint (iPhone 14 Pro, iOS 26.5, release build). | Limit: assumption + [Flutter docs](https://docs.flutter.dev/platform-integration/ios/app-extensions). Usage: measured |
 | Open the Bonkilingo app from the keyboard? | Not supported for keyboards (`NSExtensionContext.open` is Today/iMessage only), and 4.4.1 forbids launching apps other than Settings. Show "Open Bonkilingo to sign in" text instead. | Verified |
 
 ### App Store requirements (guidelines 4.4.1, 5.1.1, 5.1.2, 2.5.18)
@@ -205,7 +205,8 @@ if the app hasn't been opened. Not recommended as the long-term design.
 | Users won't grant Full Access | High | Clear setup screen; keyboard still types without it; explain why |
 | App Review (4.4.1 completeness, 5.1.2 AI disclosure) | Medium | Real QWERTY, globe key, consent screen naming OpenAI, privacy policy update |
 | Unauthenticated correction API (F1) | High (cost) | Auth + rate limiting before any public build, keyboard or not |
-| Memory limit / extension killed | Medium | Pure UIKit, no Flutter/pods, measure with Instruments on a device |
+| Memory limit / extension killed | Low (measured 7.1 MiB) | Pure UIKit, no Flutter/pods; re-measure after Phase 2 adds networking |
+| Typing feel (edge-key delay, rollover) | Low (fixed in Phase 1) | Window gesture recognizers don't delay touches; rollover commits held keys; key previews |
 | Replacement quirks (emoji, marked text, host apps) | Medium | Grapheme-aware deletion, verify-after-replace, copy fallback |
 | No hosted HTTPS backend yet (F7) | Blocker | Deploy Express to Vercel (already supported) before Phase 1 device testing |
 

@@ -46,7 +46,10 @@ These are needed for TestFlight anyway.
 - [ ] Spike: on a real iPhone, long-press "Bonkilingo" in the bar to show how many characters the
       keyboard sees before/after the cursor (counts only), in WhatsApp, iMessage, Gmail, Instagram
       (typed vs pasted, short vs long). **This decides how far the MVP can go.**
-- [ ] Measure memory with Instruments on a device.
+- [x] Measure memory on a device: 7.1 MiB physical footprint (iPhone 14 Pro, iOS 26.5, release
+      build, Instruments Activity Monitor), far under the planned 40–50 MiB budget.
+- [x] Installed on a real iPhone (release build, Full Access on). First feedback was "laggy";
+      fixed edge-key touch delay, added rollover and key previews; typing now confirmed to feel right.
 - [ ] Check on a device that "Open iPhone Settings" in the app's keyboard guide opens Bonkilingo's own
       Settings page (in the simulator it opens the Settings home screen).
 - **Done when:** the keyboard installs from a TestFlight build, types normally in all four apps, and the context-window findings are written into the architecture doc.
