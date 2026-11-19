@@ -17,6 +17,12 @@ class AppConstants {
   static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
   static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
+  // iOS keyboard extension (BONKILINGO_ROADMAP.md). The setup guide stays
+  // hidden until the keyboard target ships; build with
+  // --dart-define=KEYBOARD_EXTENSION=true to preview it.
+  static const bool keyboardExtensionEnabled =
+      bool.fromEnvironment('KEYBOARD_EXTENSION');
+
   // Storage Keys
   static const String userDataKey = 'user_data';
   static const String chatHistoryKey = 'chat_history';

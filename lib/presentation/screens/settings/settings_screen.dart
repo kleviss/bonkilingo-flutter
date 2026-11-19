@@ -8,7 +8,10 @@ import '../../../core/theme/theme_helper.dart';
 import '../../providers/providers.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/keyboard_settings_provider.dart';
+import '../../../data/data_sources/local/keyboard_settings.dart';
 import '../profile/profile_screen.dart';
+import 'keyboard_setup_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -26,9 +29,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final isDarkMode = themeMode == ThemeMode.dark;
     final theme = ThemeHelper(themeMode);
     final currentUser = ref.watch(currentUserProvider).value;
+    final keyboardCorrectionsEnabled = AppConstants.keyboardExtensionEnabled
+        ? ref.watch(keyboardCorrectionsEnabledProvider)
+        : null;
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        // The theme's navTitleTextStyle (inherit: true) can't be animated into
+        // the next page's default back-button style (inherit: false); the
+        // shared nav bar transition throws and freezes mid-push.
+        transitionBetweenRoutes: false,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(Icons.arrow_back_ios),
@@ -108,6 +118,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
 
             const SizedBox(height: 24),
+
+            // Bonkilingo Keyboard (hidden until the keyboard extension ships)
+            if (AppConstants.keyboardExtensionEnabled &&
+                KeyboardSettings.isSupported) ...[
+              _buildSectionHeader('Bonkilingo Keyboard'),
+              _buildListTile(
+                icon: Icons.keyboard,
+                title: 'Set Up Keyboard',
+                subtitle: 'Correct messages in WhatsApp, iMessage and more',
+                theme: theme,
+                onTap: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => const KeyboardSetupScreen(),
+                    ),
+                  );
+                },
+              ),
+              if (keyboardCorrectionsEnabled != null)
+                _buildSwitchTile(
+                  icon: Icons.spellcheck,
+                  title: 'Correct Button in Keyboard',
+                  subtitle: keyboardCorrectionsEnabled
+                      ? 'On: tap Correct in any app'
+                      : 'Off: Bonkilingo works as a plain keyboard',
+                  value: keyboardCorrectionsEnabled,
+                  theme: theme,
+                  onChanged: (value) {
+                    ref
+                        .read(keyboardCorrectionsEnabledProvider.notifier)
+                        .setEnabled(value);
+                  },
+                ),
+              const SizedBox(height: 24),
+            ],
 
             // Data & Privacy
             _buildSectionHeader('Data & Privacy'),
