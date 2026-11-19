@@ -77,10 +77,18 @@ final class KeyButton: UIControl {
     if let title { accessibilityLabel = title }
   }
 
+  private static var iconCache: [String: UIImage] = [:]
+
   func setIcon(_ systemName: String?, accessibilityLabel: String? = nil) {
     if let systemName {
-      let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
-      iconView.image = UIImage(systemName: systemName, withConfiguration: config)
+      if let cached = Self.iconCache[systemName] {
+        iconView.image = cached
+      } else {
+        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        let image = UIImage(systemName: systemName, withConfiguration: config)
+        Self.iconCache[systemName] = image
+        iconView.image = image
+      }
     } else {
       iconView.image = nil
     }
@@ -111,6 +119,37 @@ final class KeyButton: UIControl {
     label.textColor = colors.text
     iconView.tintColor = colors.text
     layer.shadowColor = colors.shadow.cgColor
+  }
+}
+
+/// The enlarged letter shown above a key while it is pressed.
+final class KeyPreview: UIView {
+  private let label = UILabel()
+
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    isUserInteractionEnabled = false
+    layer.cornerRadius = 10
+    layer.shadowColor = UIColor.black.cgColor
+    layer.shadowOpacity = 0.25
+    layer.shadowRadius = 3
+    layer.shadowOffset = CGSize(width: 0, height: 1)
+    label.font = .systemFont(ofSize: 34)
+    label.textAlignment = .center
+    addSubview(label)
+  }
+
+  required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+  func configure(text: String, colors: KeyColors) {
+    label.text = text
+    label.textColor = colors.text
+    backgroundColor = colors.key
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    label.frame = bounds
   }
 }
 

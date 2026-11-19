@@ -20,6 +20,9 @@ final class KeyboardViewController: UIInputViewController {
   private var lastShiftTap: Date?
   private var showsGlobe = true
   private var appliedDark: Bool?
+  /// The app's Correct on/off switch, read when the keyboard appears.
+  private var correctionsEnabled = true
+  private var showsContextReadout = KeyboardPreferences.showsContextReadout
 
   private var deleteTimer: Timer?
   private var deleteRepeats = 0
@@ -27,6 +30,20 @@ final class KeyboardViewController: UIInputViewController {
   private let log = Logger(subsystem: "com.bonkilingo.app.keyboard", category: "context")
 
   // MARK: - Lifecycle
+
+  override func loadView() {
+    // A UIInputView that adopts UIInputViewAudioFeedback, so playInputClick()
+    // plays the system key click (when the user has keyboard clicks on).
+    view = ClickingInputView(frame: .zero, inputViewStyle: .keyboard)
+  }
+
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    // The window's system gesture recognizers (edge swipes, home indicator)
+    // otherwise hold back touches near the screen edges until they fail,
+    // which makes q, a, shift, 123 and delete feel laggy.
+    view.window?.gestureRecognizers?.forEach { $0.delaysTouchesBegan = false }
+  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -63,6 +80,7 @@ final class KeyboardViewController: UIInputViewController {
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
+    correctionsEnabled = SharedSettings.correctionsEnabled
     applyKeyboardType()
     refresh()
   }
@@ -86,7 +104,7 @@ final class KeyboardViewController: UIInputViewController {
 
   override func selectionDidChange(_ textInput: UITextInput?) {
     super.selectionDidChange(textInput)
-    updateBar()
+    updateReadout()
   }
 
   private func refresh() {
@@ -188,7 +206,7 @@ final class KeyboardViewController: UIInputViewController {
     deleteTimer?.invalidate()
     deleteTimer = nil
     updateAutoShift()
-    updateBar()
+    updateReadout()
   }
 
   private func deleteWord() {
@@ -268,12 +286,18 @@ final class KeyboardViewController: UIInputViewController {
   }
 
   private func toggleContextReadout() {
-    KeyboardPreferences.showsContextReadout.toggle()
+    showsContextReadout.toggle()
+    KeyboardPreferences.showsContextReadout = showsContextReadout
     updateBar()
   }
 
+  /// Per keystroke: only the context readout changes as you type.
+  private func updateReadout() {
+    if showsContextReadout { updateBar() }
+  }
+
   private func updateBar() {
-    if KeyboardPreferences.showsContextReadout {
+    if showsContextReadout {
       // Counts only, never the text itself.
       let before = textDocumentProxy.documentContextBeforeInput?.count ?? 0
       let after = textDocumentProxy.documentContextAfterInput?.count ?? 0
@@ -284,7 +308,7 @@ final class KeyboardViewController: UIInputViewController {
       return
     }
 
-    if !SharedSettings.correctionsEnabled {
+    if !correctionsEnabled {
       bar.setStatus("Correct is off in the Bonkilingo app")
       bar.setCorrect(visible: false, enabled: false)
     } else if !hasFullAccess {
@@ -295,6 +319,10 @@ final class KeyboardViewController: UIInputViewController {
       bar.setCorrect(visible: true, enabled: false)
     }
   }
+}
+
+final class ClickingInputView: UIInputView, UIInputViewAudioFeedback {
+  var enableInputClicksWhenVisible: Bool { true }
 }
 
 // MARK: - KeyboardViewDelegate
@@ -318,15 +346,15 @@ extension KeyboardViewController: KeyboardViewDelegate {
       insert(shiftState != .off && mode == .letters ? text.uppercased() : text)
       if shiftState == .on { shiftState = .off }
       updateAutoShift()
-      updateBar()
+      updateReadout()
     case .space:
       handleSpace()
       updateAutoShift()
-      updateBar()
+      updateReadout()
     case .returnKey:
       insert("\n")
       updateAutoShift()
-      updateBar()
+      updateReadout()
     case .mode(let target):
       mode = target
       reloadKeys()
@@ -346,7 +374,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     insert(text)
     if shiftState == .on { shiftState = .off }
     updateAutoShift()
-    updateBar()
+    updateReadout()
   }
 
   func keyboardView(_ view: KeyboardView, didCreateGlobeKey button: KeyButton) {

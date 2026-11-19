@@ -86,10 +86,12 @@ final class BonkilingoBar: UIView {
   }
 
   func setStatus(_ text: String?) {
+    guard statusLabel.text != text else { return }
     statusLabel.text = text
   }
 
   func setCorrect(visible: Bool, enabled: Bool) {
+    guard correctButton.isHidden == visible || correctButton.isEnabled != enabled else { return }
     correctButton.isHidden = !visible
     correctButton.isEnabled = enabled
     correctButton.alpha = enabled ? 1 : 0.55

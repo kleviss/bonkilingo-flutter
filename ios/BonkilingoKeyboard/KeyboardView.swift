@@ -41,6 +41,21 @@ final class KeyboardView: UIView {
   private var shiftSymbol = "shift"
   private var returnTitle: String?
 
+  /// Keys whose finger is still down but which were already committed
+  /// because the next key went down first (rollover); their lift is ignored.
+  private var committedEarly = Set<ObjectIdentifier>()
+  /// Character keys currently held, oldest first.
+  private var heldCharacters: [KeyButton] = []
+  private var previews: [ObjectIdentifier: KeyPreview] = [:]
+
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    // Two-thumb typing: the next key can go down before the last one lifts.
+    isMultipleTouchEnabled = true
+  }
+
+  required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
   var preferredHeight: CGFloat {
     let rows = CGFloat(page.rows.count)
     return topInset + rows * keyHeight + max(0, rows - 1) * rowGap + 4
@@ -48,6 +63,10 @@ final class KeyboardView: UIView {
 
   func load(_ page: KeyboardPage) {
     dismissPopup()
+    previews.values.forEach { $0.removeFromSuperview() }
+    previews = [:]
+    heldCharacters = []
+    committedEarly = []
     buttons.forEach { $0.removeFromSuperview() }
     buttons = []
     rowsOfButtons = []
@@ -58,6 +77,7 @@ final class KeyboardView: UIView {
       for spec in row.keys {
         let button = KeyButton(spec: spec)
         button.colors = colors
+        button.isMultipleTouchEnabled = true
         button.addTarget(self, action: #selector(keyDown(_:)), for: .touchDown)
         button.addTarget(self, action: #selector(keyUp(_:)), for: .touchUpInside)
         button.addTarget(self, action: #selector(keyCancel(_:)), for: [.touchUpOutside, .touchCancel])
@@ -80,7 +100,9 @@ final class KeyboardView: UIView {
   }
 
   /// Letter case and the shift key's look: "shift", "shift.fill" or "capslock.fill".
+  /// Called after every keystroke, so it only redraws when something changed.
   func setShift(uppercase: Bool, symbol: String) {
+    guard uppercase != self.uppercase || symbol != shiftSymbol else { return }
     self.uppercase = uppercase
     shiftSymbol = symbol
     updateLabels()
@@ -88,6 +110,7 @@ final class KeyboardView: UIView {
 
   /// nil shows the return arrow.
   func setReturnTitle(_ title: String?) {
+    guard title != returnTitle else { return }
     returnTitle = title
     updateLabels()
   }
@@ -176,15 +199,58 @@ final class KeyboardView: UIView {
   // MARK: - Touches
 
   @objc private func keyDown(_ sender: KeyButton) {
+    // Rollover, like the system keyboard: a new key going down commits the
+    // letters still held, so fast two-thumb typing never waits for a lift.
+    for held in heldCharacters where held !== sender {
+      committedEarly.insert(ObjectIdentifier(held))
+      hidePreview(for: held)
+      delegate?.keyboardView(self, didRelease: held.spec.key)
+    }
+    heldCharacters.removeAll()
+
+    if case .character = sender.spec.key {
+      heldCharacters.append(sender)
+      showPreview(for: sender)
+    }
     delegate?.keyboardView(self, didPress: sender.spec.key)
   }
 
   @objc private func keyUp(_ sender: KeyButton) {
+    hidePreview(for: sender)
+    heldCharacters.removeAll { $0 === sender }
+    if committedEarly.remove(ObjectIdentifier(sender)) != nil { return }
     delegate?.keyboardView(self, didRelease: sender.spec.key)
   }
 
   @objc private func keyCancel(_ sender: KeyButton) {
+    hidePreview(for: sender)
+    heldCharacters.removeAll { $0 === sender }
+    if committedEarly.remove(ObjectIdentifier(sender)) != nil { return }
     delegate?.keyboardView(self, didCancel: sender.spec.key)
+  }
+
+  // MARK: - Key preview
+
+  /// The enlarged letter above a pressed key, as on the system keyboard.
+  private func showPreview(for button: KeyButton) {
+    guard case .character(let text) = button.spec.key else { return }
+    let container = popupContainer ?? self
+    let keyFrame = button.convert(button.bounds, to: container)
+    let width = max(keyFrame.width + 16, 46)
+    let height = keyHeight + 10
+    var x = keyFrame.midX - width / 2
+    x = min(max(x, 1), container.bounds.width - width - 1)
+    let y = max(0, keyFrame.minY - height - 2)
+
+    let preview = previews[ObjectIdentifier(button)] ?? KeyPreview()
+    preview.configure(text: uppercase ? text.uppercased() : text, colors: colors)
+    preview.frame = CGRect(x: x, y: y, width: width, height: height)
+    container.addSubview(preview)
+    previews[ObjectIdentifier(button)] = preview
+  }
+
+  private func hidePreview(for button: KeyButton) {
+    previews.removeValue(forKey: ObjectIdentifier(button))?.removeFromSuperview()
   }
 
   @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
@@ -193,6 +259,7 @@ final class KeyboardView: UIView {
 
     switch gesture.state {
     case .began:
+      hidePreview(for: button)
       let options = KeyboardLayouts.alternates(for: base).map { uppercase ? $0.uppercased() : $0 }
       guard !options.isEmpty else { return }
       let popup = AlternatesPopup(options: options, colors: colors)
