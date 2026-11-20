@@ -39,3 +39,38 @@ class KeyboardCorrectionsNotifier extends StateNotifier<bool?> {
     }
   }
 }
+
+/// Whether the keyboard keeps its corrections for History.
+/// `null` while the stored value loads.
+final keyboardSaveToHistoryProvider =
+    StateNotifierProvider<KeyboardSaveToHistoryNotifier, bool?>((ref) {
+  return KeyboardSaveToHistoryNotifier(ref.watch(keyboardSettingsProvider));
+});
+
+class KeyboardSaveToHistoryNotifier extends StateNotifier<bool?> {
+  final KeyboardSettings _settings;
+
+  KeyboardSaveToHistoryNotifier(this._settings) : super(null) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final enabled = await _settings.getSaveToHistory();
+      if (mounted) state = enabled;
+    } catch (_) {
+      if (mounted) state = true;
+    }
+  }
+
+  /// Switches immediately, then saves; reverts if saving fails.
+  Future<void> setEnabled(bool enabled) async {
+    final previous = state;
+    state = enabled;
+    try {
+      await _settings.setSaveToHistory(enabled);
+    } catch (_) {
+      if (mounted) state = previous;
+    }
+  }
+}

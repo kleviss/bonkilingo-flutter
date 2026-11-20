@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import '../data_sources/remote/ai_api.dart';
 import '../data_sources/remote/supabase_api.dart';
 import '../data_sources/local/local_storage.dart';
 import '../models/lesson_request.dart';
 import '../models/lesson_model.dart';
+import '../../core/utils/mistake_patterns.dart';
 import 'package:uuid/uuid.dart';
 
 class LessonRepository {
@@ -23,11 +25,25 @@ class LessonRepository {
     return response.reply;
   }
 
+  /// A short lesson and quiz on a mistake the learner keeps making
+  /// (Learn → Suggested for you).
+  Future<String> generateMistakeLesson(MistakePattern pattern) async {
+    const systemPrompt =
+        'You are a friendly language tutor. Write short, practical lessons in Markdown with clear headings. Keep it under 350 words.';
+    final response = await _aiApi.chat(
+      messages: [
+        {'role': 'user', 'content': pattern.lessonPrompt},
+      ],
+      systemPrompt: systemPrompt,
+    );
+    return response.reply;
+  }
+
   /// Generate a lesson summary from conversation messages
   Future<String> generateLessonFromConversation({
     required List<Map<String, String>> messages,
   }) async {
-    final systemPrompt =
+    const systemPrompt =
         'You are a helpful language tutor. Based on this conversation about language learning and corrections, create a concise learning summary with key vocabulary, useful phrases, and grammar tips. Format your response in three clear sections: 1) Key Vocabulary (5-8 relevant words with translations), 2) Useful Phrases (3-5 practical expressions), and 3) Grammar Tips (1-2 relevant grammar points with simple examples). Keep your response concise and focused on practical language use.';
 
     final response = await _aiApi.chat(
@@ -61,7 +77,7 @@ class LessonRepository {
         
         return saved;
       } catch (e) {
-        print('Failed to save to database: $e');
+        debugPrint('Failed to save to database: $e');
       }
     }
 
@@ -91,7 +107,7 @@ class LessonRepository {
         
         return lessons;
       } catch (e) {
-        print('Failed to fetch from database: $e');
+        debugPrint('Failed to fetch from database: $e');
       }
     }
 
@@ -109,7 +125,7 @@ class LessonRepository {
       try {
         await _supabaseApi.deleteLesson(lessonId, userId);
       } catch (e) {
-        print('Failed to delete from database: $e');
+        debugPrint('Failed to delete from database: $e');
       }
     }
 

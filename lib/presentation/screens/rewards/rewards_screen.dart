@@ -1,13 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons;
+import 'package:flutter/material.dart' show Icons, ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/theme_helper.dart';
+import '../../../core/theme/brand_colors.dart';
 import '../../../core/utils/extensions.dart';
 import '../../providers/rewards_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/brand/brand_surfaces.dart';
+import '../../widgets/brand/glow_background.dart';
+import '../../widgets/brand/highlighted_title.dart';
+import '../../widgets/cupertino_app_bar.dart';
 
 class RewardsScreen extends ConsumerStatefulWidget {
   const RewardsScreen({super.key});
@@ -29,207 +32,249 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
   @override
   Widget build(BuildContext context) {
     final rewardsState = ref.watch(rewardsStateProvider);
-    final themeMode = ref.watch(themeModeProvider);
-    final theme = ThemeHelper(themeMode);
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final p = BrandPalette(isDark);
 
     final balance = rewardsState.balance;
     final pendingBalance = balance?.pendingBalance ?? 0;
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        // Tab root kept alive in MainNavigation's IndexedStack next to the
-        // other tabs' bars; a shared default hero tag breaks every push.
-        transitionBetweenRoutes: false,
-        middle: const Text('BONK Rewards'),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(Icons.refresh),
-          onPressed: () {
-            ref.read(rewardsStateProvider.notifier).loadData();
-          },
-        ),
-      ),
-      child: SafeArea(
-        child: rewardsState.isLoading && balance == null
-            ? const Center(child: CupertinoActivityIndicator())
-            : CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  CupertinoSliverRefreshControl(
-                    onRefresh: () async {
-                      await ref.read(rewardsStateProvider.notifier).loadData();
-                    },
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.all(16),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        // BONK Balance Card
-                        _buildBalanceCard(theme, pendingBalance, balance),
-
-                        const SizedBox(height: 16),
-
-                        // Wallet & Withdraw Section
-                        _buildWalletSection(theme, balance),
-
-                        const SizedBox(height: 24),
-
-                        // Stats Row
-                        if (balance != null) _buildStatsRow(theme, balance),
-
-                        const SizedBox(height: 24),
-
-                        // How to Earn Section
-                        _buildHowToEarnSection(theme, rewardsState.config),
-
-                        const SizedBox(height: 24),
-
-                        // Recent Activity
-                        _buildRecentActivitySection(theme, rewardsState.rewardHistory),
-
-                        const SizedBox(height: 24),
-
-                        // Withdrawal History
-                        if (rewardsState.withdrawalHistory.isNotEmpty)
-                          _buildWithdrawalHistorySection(theme, rewardsState.withdrawalHistory),
-                      ]),
+    return GlowBackground(
+      isDark: isDark,
+      child: CupertinoPageScaffold(
+        backgroundColor: const Color(0x00000000),
+        navigationBar:
+            const CupertinoAppBar(title: 'Rewards', transparent: true),
+        child: SafeArea(
+          child: rewardsState.isLoading && balance == null
+              ? const Center(child: CupertinoActivityIndicator())
+              : CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    CupertinoSliverRefreshControl(
+                      onRefresh: () async {
+                        await ref
+                            .read(rewardsStateProvider.notifier)
+                            .loadData();
+                      },
                     ),
-                  ),
-                ],
-              ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          HighlightedTitle(
+                            'Earn *BONK*',
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.8,
+                              height: 1.15,
+                              color: p.text,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'For every correction, lesson and day of your streak.',
+                            style: TextStyle(fontSize: 16, color: p.muted),
+                          ),
+                          const SizedBox(height: 20),
+                          _buildBalanceCard(p, pendingBalance, balance),
+                          const SizedBox(height: 12),
+                          _buildWalletSection(p, balance),
+                          const SizedBox(height: 32),
+                          _buildHowToEarnSection(p, rewardsState.config),
+                          const SizedBox(height: 32),
+                          _buildRecentActivitySection(
+                            p,
+                            rewardsState.rewardHistory,
+                          ),
+                          if (rewardsState.withdrawalHistory.isNotEmpty) ...[
+                            const SizedBox(height: 32),
+                            _buildWithdrawalHistorySection(
+                              p,
+                              rewardsState.withdrawalHistory,
+                            ),
+                          ],
+                        ]),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
 
-  Widget _buildBalanceCard(ThemeHelper theme, int pendingBalance, dynamic balance) {
+  Widget _buildBalanceCard(
+      BrandPalette p, int pendingBalance, dynamic balance) {
+    const inkSoft = Color(0xB31C1C1E);
     return Container(
-      padding: const EdgeInsets.all(24),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withOpacity(0.8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
+        gradient: BrandColors.iconGradient,
+        borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: BrandColors.tangerine.withValues(alpha: 0.3),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
           ),
         ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                '🐕',
-                style: TextStyle(fontSize: 24),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'Your BONK Balance',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            pendingBalance.formatted,
-            style: const TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'BONK TOKENS',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-              letterSpacing: 2,
-            ),
-          ),
-          if (balance != null && balance.withdrawalsEnabled) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    size: 14,
-                    color: AppColors.success,
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    'Withdrawals Enabled',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.success,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWalletSection(ThemeHelper theme, dynamic balance) {
-    final hasWallet = balance?.walletAddress != null;
-    final canWithdraw = balance?.canWithdraw ?? false;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.account_balance_wallet, color: theme.textPrimary),
-              const SizedBox(width: 8),
-              Text(
-                'Solana Wallet',
+              const Text(
+                'Your BONK balance',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: theme.textPrimary,
+                  color: inkSoft,
+                ),
+              ),
+              const Spacer(),
+              if (balance != null && balance.withdrawalsEnabled)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: BrandColors.ink.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_circle,
+                          size: 14, color: BrandColors.ink),
+                      SizedBox(width: 4),
+                      Text(
+                        'Withdrawals on',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: BrandColors.ink,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    pendingBalance.formatted.isEmpty
+                        ? '0'
+                        : pendingBalance.formatted,
+                    style: const TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1.5,
+                      height: 1.05,
+                      color: BrandColors.ink,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 8, bottom: 8),
+                child: Text(
+                  'BONK',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: BrandColors.ink,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          if (balance != null) ...[
+            const SizedBox(height: 16),
+            Container(
+                height: 1, color: BrandColors.ink.withValues(alpha: 0.12)),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: _BalanceStat(
+                    label: 'Total earned',
+                    value: balance.totalEarned.formatted,
+                    icon: Icons.trending_up,
+                  ),
+                ),
+                Expanded(
+                  child: _BalanceStat(
+                    label: 'Withdrawn',
+                    value: balance.totalWithdrawn.formatted,
+                    icon: Icons.account_balance_wallet_outlined,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWalletSection(BrandPalette p, dynamic balance) {
+    final hasWallet = balance?.walletAddress != null;
+    final canWithdraw = balance?.canWithdraw ?? false;
+
+    return BrandCard(
+      palette: p,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              BrandIconBadge(
+                icon: Icons.account_balance_wallet_outlined,
+                color: const Color(0xFFB07CF5),
+                isDark: p.isDark,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Solana wallet',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: p.text,
+                      ),
+                    ),
+                    Text(
+                      hasWallet
+                          ? 'Withdraw BONK to this address'
+                          : 'Connect a wallet to withdraw your BONK',
+                      style: TextStyle(fontSize: 13, color: p.muted),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
           if (hasWallet) ...[
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(14, 4, 4, 4),
               decoration: BoxDecoration(
-                color: theme.backgroundTertiary,
-                borderRadius: BorderRadius.circular(8),
+                color: p.cardSunken,
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
                 children: [
@@ -238,19 +283,24 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                       _truncateAddress(balance.walletAddress),
                       style: TextStyle(
                         fontSize: 14,
-                        fontFamily: 'monospace',
-                        color: theme.textSecondary,
+                        fontFamily: 'Menlo',
+                        color: p.text,
                       ),
                     ),
                   ),
                   CupertinoButton(
                     padding: EdgeInsets.zero,
-                    minSize: 32,
-                    child: Icon(Icons.copy, size: 18, color: theme.textSecondary),
+                    minSize: 40,
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(text: balance.walletAddress));
+                      Clipboard.setData(
+                        ClipboardData(text: balance.walletAddress),
+                      );
                       _showToast('Wallet address copied');
                     },
+                    child: Semantics(
+                      label: 'Copy wallet address',
+                      child: Icon(Icons.copy, size: 18, color: p.muted),
+                    ),
                   ),
                 ],
               ),
@@ -260,381 +310,234 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
               children: [
                 Expanded(
                   child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    color: theme.backgroundTertiary,
-                    borderRadius: BorderRadius.circular(8),
+                    padding: EdgeInsets.zero,
+                    minSize: 0,
                     onPressed: () => _showEditWalletDialog(),
-                    child: Text(
-                      'Change Wallet',
-                      style: TextStyle(
-                        color: theme.textPrimary,
-                        fontSize: 14,
+                    child: Container(
+                      height: 48,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: p.cardSunken,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'Change',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: p.text,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    color: canWithdraw ? AppColors.success : AppColors.textTertiary,
-                    borderRadius: BorderRadius.circular(8),
+                  child: SecondaryPillButton(
+                    palette: p,
+                    label: 'Withdraw',
+                    icon: Icons.north_east,
                     onPressed: canWithdraw ? () => _showWithdrawDialog() : null,
-                    child: const Text(
-                      'Withdraw',
-                      style: TextStyle(
-                        color: CupertinoColors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
                   ),
                 ),
               ],
             ),
             if (!canWithdraw && balance != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
-                'Minimum withdrawal: ${balance.minWithdrawal.formatted} BONK',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.textTertiary,
-                ),
+                'You can withdraw from ${balance.minWithdrawal.formatted} BONK.',
+                style: TextStyle(fontSize: 13, color: p.muted),
               ),
             ],
-          ] else ...[
-            Text(
-              'Connect your Solana wallet to withdraw BONK tokens',
-              style: TextStyle(
-                fontSize: 14,
-                color: theme.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 12),
+          ] else
             SizedBox(
               width: double.infinity,
-              child: CupertinoButton(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(8),
+              child: SecondaryPillButton(
+                palette: p,
+                label: 'Connect wallet',
+                icon: Icons.link,
                 onPressed: () => _showAddWalletDialog(),
-                child: const Text(
-                  'Connect Wallet',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
               ),
             ),
-          ],
         ],
       ),
     );
   }
 
-  Widget _buildStatsRow(ThemeHelper theme, dynamic balance) {
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            title: 'Total Earned',
-            value: balance.totalEarned.formatted,
-            icon: Icons.trending_up,
-            color: AppColors.success,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            title: 'Withdrawn',
-            value: balance.totalWithdrawn.formatted,
-            icon: Icons.account_balance,
-            color: AppColors.info,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHowToEarnSection(ThemeHelper theme, dynamic config) {
+  Widget _buildHowToEarnSection(BrandPalette p, dynamic config) {
     final earnMethods = [
-      {
-        'icon': Icons.spellcheck,
-        'title': 'Text Corrections',
-        'desc': 'Earn BONK for every text you correct',
-        'amount': '100-500',
-      },
-      {
-        'icon': Icons.school,
-        'title': 'Complete Lessons',
-        'desc': 'Finish AI-generated lessons',
-        'amount': '${config?.lessonComplete ?? 200}',
-      },
-      {
-        'icon': Icons.local_fire_department,
-        'title': 'Daily Streak',
-        'desc': 'Keep your learning streak going',
-        'amount': '${config?.dailyStreakBonus ?? 150}',
-      },
-      {
-        'icon': Icons.group_add,
-        'title': 'Refer Friends',
-        'desc': 'Invite friends to earn bonus',
-        'amount': '${config?.referralBonus ?? 5000}',
-      },
+      (
+        Icons.spellcheck,
+        BrandColors.tangerine,
+        'Text corrections',
+        'For every text you correct',
+        '100–500',
+      ),
+      (
+        Icons.school_outlined,
+        BrandColors.leaf,
+        'Complete lessons',
+        'Finish an AI-made lesson',
+        '${config?.lessonComplete ?? 200}',
+      ),
+      (
+        Icons.local_fire_department,
+        BrandColors.ribbon,
+        'Daily streak',
+        'Learn something every day',
+        '${config?.dailyStreakBonus ?? 150}',
+      ),
+      (
+        Icons.group_add_outlined,
+        const Color(0xFF4F8EF7),
+        'Invite friends',
+        'When a friend joins',
+        '${config?.referralBonus ?? 5000}',
+      ),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'How to Earn',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: theme.textPrimary,
+        BrandSectionTitle('How to earn', palette: p),
+        BrandCard(
+          palette: p,
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            children: [
+              for (var i = 0; i < earnMethods.length; i++) ...[
+                if (i > 0) BrandRowDivider(palette: p),
+                BrandListRow(
+                  palette: p,
+                  leading: BrandIconBadge(
+                    icon: earnMethods[i].$1,
+                    color: earnMethods[i].$2,
+                    isDark: p.isDark,
+                  ),
+                  title: earnMethods[i].$3,
+                  subtitle: earnMethods[i].$4,
+                  trailing: _BonkAmount(
+                    amount: '+${earnMethods[i].$5}',
+                    palette: p,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        ...earnMethods.map((method) => Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.cardBackground,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: theme.border),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      method['icon'] as IconData,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          method['title'] as String,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: theme.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          method['desc'] as String,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: theme.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.successLight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '+${method['amount']}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.success,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )),
       ],
     );
   }
 
-  Widget _buildRecentActivitySection(ThemeHelper theme, List rewardHistory) {
-    if (rewardHistory.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: theme.cardBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.border),
-        ),
-        child: Column(
-          children: [
-            Icon(Icons.history, size: 48, color: theme.textTertiary),
-            const SizedBox(height: 12),
-            Text(
-              'No rewards yet',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: theme.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Start learning to earn BONK tokens!',
-              style: TextStyle(
-                fontSize: 14,
-                color: theme.textTertiary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
+  Widget _buildRecentActivitySection(BrandPalette p, List rewardHistory) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Recent Activity',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: theme.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...rewardHistory.take(5).map((reward) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      color: AppColors.successLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.add,
-                      color: AppColors.success,
-                      size: 20,
-                    ),
+        BrandSectionTitle('Recent activity', palette: p),
+        if (rewardHistory.isEmpty)
+          BrandCard(
+            palette: p,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              children: [
+                BrandIconBadge(
+                  icon: Icons.star_rounded,
+                  color: BrandColors.tangerine,
+                  isDark: p.isDark,
+                  size: 52,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'No BONK yet',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '+${reward.amount} BONK',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: AppColors.success,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          reward.readableReason,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: theme.textSecondary,
-                          ),
-                        ),
-                      ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Correct your first sentence on Home to start earning.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: p.muted),
+                ),
+              ],
+            ),
+          )
+        else
+          BrandCard(
+            palette: p,
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              children: [
+                for (final (i, reward) in rewardHistory.take(5).indexed) ...[
+                  if (i > 0) BrandRowDivider(palette: p),
+                  BrandListRow(
+                    palette: p,
+                    leading: BrandIconBadge(
+                      icon: Icons.add,
+                      color: BrandPalette.green,
+                      isDark: p.isDark,
                     ),
-                  ),
-                  Text(
-                    _formatTimeAgo(reward.createdAt),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: theme.textTertiary,
+                    title: reward.readableReason,
+                    subtitle: _formatTimeAgo(reward.createdAt),
+                    trailing: _BonkAmount(
+                      amount: '+${reward.amount}',
+                      palette: p,
                     ),
                   ),
                 ],
-              ),
-            )),
+              ],
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildWithdrawalHistorySection(ThemeHelper theme, List withdrawals) {
+  Widget _buildWithdrawalHistorySection(BrandPalette p, List withdrawals) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Withdrawal History',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: theme.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...withdrawals.take(5).map((w) => Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.cardBackground,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: theme.border),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    w.isCompleted
-                        ? Icons.check_circle
+        BrandSectionTitle('Withdrawals', palette: p),
+        BrandCard(
+          palette: p,
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            children: [
+              for (final (i, w) in withdrawals.take(5).indexed) ...[
+                if (i > 0) BrandRowDivider(palette: p),
+                BrandListRow(
+                  palette: p,
+                  leading: BrandIconBadge(
+                    icon: w.isCompleted
+                        ? Icons.check_circle_outline
                         : w.isFailed
-                            ? Icons.error
-                            : Icons.pending,
+                            ? Icons.error_outline
+                            : Icons.schedule,
                     color: w.isCompleted
-                        ? AppColors.success
+                        ? BrandPalette.green
                         : w.isFailed
-                            ? AppColors.error
-                            : AppColors.warning,
+                            ? BrandPalette.red
+                            : BrandColors.tangerine,
+                    isDark: p.isDark,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${w.amount.formatted} BONK',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: theme.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          w.status.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: theme.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (w.txSignature != null)
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      minSize: 32,
-                      child: const Icon(Icons.open_in_new, size: 18),
-                      onPressed: () => _openExplorer(w.explorerUrl),
-                    ),
-                ],
-              ),
-            )),
+                  title: '${w.amount.formatted} BONK',
+                  subtitle: _statusLabel(w.status as String),
+                  onTap: w.txSignature != null
+                      ? () => _openExplorer(w.explorerUrl)
+                      : null,
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
+  }
+
+  String _statusLabel(String status) {
+    if (status.isEmpty) return status;
+    return status[0].toUpperCase() + status.substring(1).toLowerCase();
   }
 
   // ========== Dialogs ==========
@@ -789,53 +692,67 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
   }
 }
 
-class _StatCard extends ConsumerWidget {
-  final String title;
+class _BalanceStat extends StatelessWidget {
+  final String label;
   final String value;
   final IconData icon;
-  final Color color;
 
-  const _StatCard({
-    required this.title,
+  const _BalanceStat({
+    required this.label,
     required this.value,
     required this.icon,
-    required this.color,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-    final theme = ThemeHelper(themeMode);
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: const Color(0xB31C1C1E)),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value.isEmpty ? '0' : value,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: BrandColors.ink,
+              ),
+            ),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 12, color: Color(0xB31C1C1E)),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
+class _BonkAmount extends StatelessWidget {
+  final String amount;
+  final BrandPalette palette;
+
+  const _BonkAmount({required this.amount, required this.palette});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: theme.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.border),
+        color: palette.greenBg,
+        borderRadius: BorderRadius.circular(999),
       ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: theme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: Text(
+        amount,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w800,
+          color: BrandPalette.green,
+          fontFeatures: [FontFeature.tabularFigures()],
+        ),
       ),
     );
   }

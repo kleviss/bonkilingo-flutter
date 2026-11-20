@@ -368,6 +368,9 @@ final class KeyboardViewController: UIInputViewController {
           return
         }
         self.pendingCorrection = (captured, corrected)
+        if SharedSettings.saveToHistory {
+          KeyboardHistoryQueue.append(original: captured.core, corrected: corrected)
+        }
         let note = captured.mayBeCutOff
           ? "The keyboard may only see the end of a long message. Select all of it to correct everything."
           : nil

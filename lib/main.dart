@@ -7,6 +7,7 @@ import 'data/data_sources/local/local_storage.dart';
 import 'presentation/providers/providers.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/main_navigation.dart';
+import 'presentation/screens/onboarding/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,18 +22,25 @@ void main() async {
   final localStorage = AppLocalStorage();
   await localStorage.init();
 
+  // First launch shows onboarding. People who are already signed in (e.g.
+  // updating from a version without onboarding) go straight to the app.
+  final showOnboarding = !await OnboardingScreen.isComplete() &&
+      Supabase.instance.client.auth.currentSession == null;
+
   runApp(
     ProviderScope(
       overrides: [
         localStorageProvider.overrideWithValue(localStorage),
       ],
-      child: const BonkilingoApp(),
+      child: BonkilingoApp(showOnboarding: showOnboarding),
     ),
   );
 }
 
 class BonkilingoApp extends ConsumerWidget {
-  const BonkilingoApp({super.key});
+  final bool showOnboarding;
+
+  const BonkilingoApp({super.key, this.showOnboarding = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,7 +52,7 @@ class BonkilingoApp extends ConsumerWidget {
       theme: themeMode == ThemeMode.dark 
           ? AppThemes.darkTheme 
           : AppThemes.lightTheme,
-      home: const MainNavigation(),
+      home: showOnboarding ? const OnboardingScreen() : const MainNavigation(),
       localizationsDelegates: const [
         DefaultCupertinoLocalizations.delegate,
       ],

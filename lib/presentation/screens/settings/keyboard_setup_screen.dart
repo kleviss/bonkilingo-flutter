@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons;
+import 'package:flutter/material.dart' show Icons, ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/theme_helper.dart';
+import '../../../core/theme/brand_colors.dart';
 import '../../providers/keyboard_settings_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/brand/brand_page.dart';
+import '../../widgets/brand/brand_surfaces.dart';
+import '../../widgets/brand/pill_button.dart';
+
+const _blue = Color(0xFF4F8EF7);
 
 /// Walks the user through adding the Bonkilingo keyboard in iPhone Settings.
 ///
@@ -33,180 +37,97 @@ class KeyboardSetupScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = ThemeHelper(ref.watch(themeModeProvider));
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final p = BrandPalette(isDark);
     final correctionsEnabled = ref.watch(keyboardCorrectionsEnabledProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        // The default back chevron needs the CupertinoIcons font, which the
-        // app doesn't bundle; use the same back button as Settings.
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(Icons.arrow_back_ios),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        middle: const Text('Bonkilingo Keyboard'),
-      ),
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(
-              'Correct your messages right where you write them, in WhatsApp, '
-              'iMessage, Gmail and other apps.',
-              style: TextStyle(fontSize: 16, color: theme.textSecondary),
-            ),
-            const SizedBox(height: 20),
-
-            _card(
-              theme,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _cardTitle('Add the keyboard', theme),
-                  const SizedBox(height: 12),
-                  for (var i = 0; i < _steps.length; i++)
-                    _step(i + 1, _steps[i].$1, _steps[i].$2, theme),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CupertinoButton.filled(
-                      onPressed: () => _openAppSettings(context),
-                      child: const Text(
-                        'Open iPhone Settings',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: CupertinoColors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Don't see Keyboards? Go to Settings › General › Keyboard › "
-                    'Keyboards › Add New Keyboard, and choose Bonkilingo.',
-                    style: TextStyle(fontSize: 13, color: theme.textTertiary),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            _card(
-              theme,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _cardTitle('Correct button', theme),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Turn off to use Bonkilingo as a plain keyboard. '
-                          'Nothing is sent while it is off.',
-                          style: TextStyle(fontSize: 14, color: theme.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  correctionsEnabled == null
-                      ? const CupertinoActivityIndicator()
-                      : CupertinoSwitch(
-                          value: correctionsEnabled,
-                          activeTrackColor: AppColors.primary,
-                          onChanged: (value) => ref
-                              .read(keyboardCorrectionsEnabledProvider.notifier)
-                              .setEnabled(value),
-                        ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            _card(
-              theme,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.lock_outline, color: theme.textSecondary, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Your text only leaves your iPhone when you tap Correct. '
-                      "It's sent to Bonkilingo's server and to OpenAI to correct it. "
-                      'The keyboard never sees password fields.\n\n'
-                      'To remove the keyboard, turn off Bonkilingo in the same '
-                      'Keyboards screen.',
-                      style: TextStyle(fontSize: 14, color: theme.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _card(ThemeHelper theme, {required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.border),
-      ),
-      child: child,
-    );
-  }
-
-  Widget _cardTitle(String text, ThemeHelper theme) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.w600,
-        color: theme.textPrimary,
-      ),
-    );
-  }
-
-  Widget _step(int number, String text, String? detail, ThemeHelper theme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return BrandPage(
+      isDark: isDark,
+      title: 'Bonkilingo keyboard',
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         children: [
-          Container(
-            width: 24,
-            height: 24,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '$number',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: CupertinoColors.black,
-              ),
-            ),
+          Text(
+            'Correct your messages right where you write them, in WhatsApp, '
+            'iMessage, Gmail and other apps.',
+            style: TextStyle(fontSize: 16, height: 1.4, color: p.muted),
           ),
-          const SizedBox(width: 12),
-          Expanded(
+          const SizedBox(height: 24),
+          BrandSectionTitle('Add the keyboard', palette: p),
+          BrandCard(
+            palette: p,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(text, style: TextStyle(fontSize: 15, color: theme.textPrimary)),
-                if (detail != null) ...[
-                  const SizedBox(height: 2),
-                  Text(detail, style: TextStyle(fontSize: 13, color: theme.textTertiary)),
-                ],
+                for (var i = 0; i < _steps.length; i++)
+                  _Step(
+                    number: i + 1,
+                    text: _steps[i].$1,
+                    detail: _steps[i].$2,
+                    palette: p,
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          PillButton(
+            label: 'Open iPhone Settings',
+            onPressed: () => _openAppSettings(context),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "Don't see Keyboards? Go to Settings › General › Keyboard › "
+            'Keyboards › Add New Keyboard, and choose Bonkilingo.',
+            style: TextStyle(fontSize: 13, height: 1.35, color: p.muted),
+          ),
+          const SizedBox(height: 28),
+          BrandCard(
+            palette: p,
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: BrandListRow(
+              palette: p,
+              leading: BrandIconBadge(
+                icon: Icons.spellcheck,
+                color: BrandColors.leaf,
+                isDark: isDark,
+              ),
+              title: 'Correct button',
+              subtitle: 'Turn off to use Bonkilingo as a plain keyboard. '
+                  'Nothing is sent while it is off.',
+              trailing: correctionsEnabled == null
+                  ? const CupertinoActivityIndicator()
+                  : CupertinoSwitch(
+                      value: correctionsEnabled,
+                      activeTrackColor: BrandColors.tangerine,
+                      onChanged: (value) => ref
+                          .read(keyboardCorrectionsEnabledProvider.notifier)
+                          .setEnabled(value),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          BrandCard(
+            palette: p,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                BrandIconBadge(
+                  icon: Icons.lock_outline,
+                  color: _blue,
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    'Your text only leaves your iPhone when you tap Correct. '
+                    "It's sent to Bonkilingo's server and to OpenAI to correct it. "
+                    'The keyboard never sees password fields.\n\n'
+                    'To remove the keyboard, turn off Bonkilingo in the same '
+                    'Keyboards screen.',
+                    style: TextStyle(fontSize: 14, height: 1.4, color: p.muted),
+                  ),
+                ),
               ],
             ),
           ),
@@ -225,7 +146,9 @@ class KeyboardSetupScreen extends ConsumerWidget {
         context: context,
         barrierDismissible: true,
         builder: (context) => CupertinoAlertDialog(
-          content: const Text('Open the Settings app and go to General › Keyboard › Keyboards.'),
+          content: const Text(
+            'Open the Settings app and go to General › Keyboard › Keyboards.',
+          ),
           actions: [
             CupertinoDialogAction(
               isDefaultAction: true,
@@ -236,5 +159,80 @@ class KeyboardSetupScreen extends ConsumerWidget {
         ),
       );
     }
+  }
+}
+
+/// A numbered setup step with an optional note under it.
+class _Step extends StatelessWidget {
+  final int number;
+  final String text;
+  final String? detail;
+  final BrandPalette palette;
+
+  const _Step({
+    required this.number,
+    required this.text,
+    required this.detail,
+    required this.palette,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              gradient: BrandColors.iconGradient,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '$number',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: BrandColors.ink,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.35,
+                      fontWeight: FontWeight.w500,
+                      color: palette.text,
+                    ),
+                  ),
+                  if (detail != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      detail!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.35,
+                        color: palette.muted,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Icons, ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/theme_helper.dart';
+import '../../../core/theme/brand_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/brand/auth_layout.dart';
+import '../../widgets/brand/pill_button.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -18,8 +19,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // Editing any field clears the last error.
+    _emailController.addListener(_clearError);
+    _passwordController.addListener(_clearError);
+    _confirmPasswordController.addListener(_clearError);
+  }
 
   @override
   void dispose() {
@@ -29,24 +38,30 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     super.dispose();
   }
 
+  void _clearError() {
+    if (_error != null) setState(() => _error = null);
+  }
+
   Future<void> _handleSignup() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
+    setState(() => _error = null);
+
     // Validate
     if (Validators.email(email) != null) {
-      _showError('Please enter a valid email');
+      setState(() => _error = 'Please enter a valid email');
       return;
     }
 
     if (Validators.password(password) != null) {
-      _showError('Password must be at least 6 characters');
+      setState(() => _error = 'Password must be at least 6 characters');
       return;
     }
 
     if (password != confirmPassword) {
-      _showError('Passwords do not match');
+      setState(() => _error = 'Passwords do not match');
       return;
     }
 
@@ -55,7 +70,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final authState = ref.read(authStateProvider);
 
     if (authState.error != null && mounted) {
-      _showError(authState.error!);
+      setState(() => _error = authState.error);
     } else if (authState.user != null && mounted) {
       showCupertinoDialog(
         context: context,
@@ -78,246 +93,80 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     }
   }
 
-  void _showError(String message) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
-    final themeMode = ref.watch(themeModeProvider);
-    final theme = ThemeHelper(themeMode);
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final p = BrandPalette(isDark);
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(Icons.arrow_back_ios),
+    return AuthLayout(
+      isDark: isDark,
+      title: 'Create your *account*',
+      subtitle: 'Save your corrections and start earning BONK.',
+      children: [
+        BrandTextField(
+          isDark: isDark,
+          label: 'Email',
+          controller: _emailController,
+          icon: Icons.mail_outline,
+          placeholder: 'you@example.com',
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.email],
+          enabled: !authState.isLoading,
+        ),
+        const SizedBox(height: 16),
+        BrandTextField(
+          isDark: isDark,
+          label: 'Password',
+          controller: _passwordController,
+          icon: Icons.lock_outline,
+          placeholder: 'At least 6 characters',
+          obscure: true,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.newPassword],
+          enabled: !authState.isLoading,
+        ),
+        const SizedBox(height: 16),
+        BrandTextField(
+          isDark: isDark,
+          label: 'Confirm password',
+          controller: _confirmPasswordController,
+          icon: Icons.lock_outline,
+          placeholder: 'Type it again',
+          obscure: true,
+          textInputAction: TextInputAction.done,
+          autofillHints: const [AutofillHints.newPassword],
+          enabled: !authState.isLoading,
+          onSubmitted: (_) => _handleSignup(),
+        ),
+        const SizedBox(height: 24),
+        if (_error != null) ...[
+          AuthError(message: _error!, isDark: isDark),
+          const SizedBox(height: 16),
+        ],
+        PillButton(
+          label: 'Create account',
+          loading: authState.isLoading,
+          onPressed: _handleSignup,
+        ),
+        const SizedBox(height: 16),
+
+        // Terms Text
+        Text(
+          'By signing up, you agree to our Terms of Service and Privacy Policy',
+          style: TextStyle(fontSize: 12, height: 1.4, color: p.muted),
+          textAlign: TextAlign.center,
+        ),
+
+        const SizedBox(height: 16),
+        AuthSwitchLink(
+          isDark: isDark,
+          prompt: 'Already have an account?',
+          action: 'Sign in',
           onPressed: () => Navigator.of(context).pop(),
         ),
-        middle: const Text('Sign Up'),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 32),
-              
-              // Title
-              Text(
-                'Create Account',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: theme.textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Start your language learning journey',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: theme.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 48),
-
-              // Email Field
-              Text(
-                'Email',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: theme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              CupertinoTextField(
-                controller: _emailController,
-                placeholder: 'your@email.com',
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                padding: const EdgeInsets.all(16),
-                prefix: Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Icon(
-                    Icons.email,
-                    color: theme.textTertiary,
-                  ),
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: theme.border),
-                ),
-                enabled: !authState.isLoading,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Password Field
-              Text(
-                'Password',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: theme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              CupertinoTextField(
-                controller: _passwordController,
-                placeholder: 'At least 6 characters',
-                obscureText: _obscurePassword,
-                textInputAction: TextInputAction.next,
-                padding: const EdgeInsets.all(16),
-                prefix: Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Icon(
-                    Icons.lock,
-                    color: theme.textTertiary,
-                  ),
-                ),
-                suffix: CupertinoButton(
-                  padding: const EdgeInsets.only(right: 12),
-                  minSize: 0,
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                  child: Icon(
-                    _obscurePassword
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                    color: theme.textTertiary,
-                  ),
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: theme.border),
-                ),
-                enabled: !authState.isLoading,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Confirm Password Field
-              Text(
-                'Confirm Password',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: theme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              CupertinoTextField(
-                controller: _confirmPasswordController,
-                placeholder: 'Confirm your password',
-                obscureText: _obscureConfirmPassword,
-                textInputAction: TextInputAction.done,
-                padding: const EdgeInsets.all(16),
-                prefix: Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Icon(
-                    Icons.lock,
-                    color: theme.textTertiary,
-                  ),
-                ),
-                suffix: CupertinoButton(
-                  padding: const EdgeInsets.only(right: 12),
-                  minSize: 0,
-                  onPressed: () {
-                    setState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
-                  },
-                  child: Icon(
-                    _obscureConfirmPassword
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                    color: theme.textTertiary,
-                  ),
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: theme.border),
-                ),
-                enabled: !authState.isLoading,
-                onSubmitted: (_) => _handleSignup(),
-              ),
-
-              const SizedBox(height: 32),
-
-              // Sign Up Button
-              SizedBox(
-                width: double.infinity,
-                child: CupertinoButton.filled(
-                  onPressed: authState.isLoading ? null : _handleSignup,
-                  child: authState.isLoading
-                      ? const CupertinoActivityIndicator(
-                          color: CupertinoColors.black,
-                        )
-                      : const Text('Sign Up'),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Terms Text
-              Text(
-                'By signing up, you agree to our Terms of Service and Privacy Policy',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 32),
-
-              // Sign In Link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Already have an account?',
-                    style: TextStyle(
-                      color: theme.textPrimary,
-                      fontSize: 14,
-                    ),
-                  ),
-                  CupertinoButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Sign In'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      ],
     );
   }
 }
