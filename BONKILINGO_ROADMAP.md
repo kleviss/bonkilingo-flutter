@@ -56,12 +56,21 @@ These are needed for TestFlight anyway.
 
 ## Phase 2: Correct button MVP (3–5 days)
 
-- [ ] `TextCapture`: selection first, otherwise the context window; truncation heuristic + warning.
-- [ ] `APIClient` (URLSession, 15 s timeout) → `POST /api/correct`.
-- [ ] Panel: original vs corrected, **Accept / Reject**, loading indicator.
-- [ ] Replace: cursor to end, grapheme-aware delete, insert, verify-after-replace, copy fallback.
-- [ ] Errors: no Full Access, offline, timeout, 401 (not signed in), 429 (rate limited), 5xx.
-- [ ] Unit tests for capture/replace logic against a fake `UITextDocumentProxy`.
+- [x] `TextCapture` (`ios/BonkilingoKeyboard/TextEditing.swift`): selection first, otherwise the
+      context window; flags 180+ visible characters as possibly cut off (threshold not yet tuned:
+      the device spike recording didn't capture the counts).
+- [x] `APIClient` (ephemeral URLSession, 15 s timeout) → `POST /api/correct` on the hosted backend,
+      anonymous for now (per-IP limit) until Phase 3.
+- [x] Panel over the keys: corrected text with changed words highlighted, **Replace / Copy / close**,
+      loading indicator, "Looks good" when nothing changes, cut-off note.
+- [x] Replace: rewrites only the changed part (shared start and end untouched), keeps whitespace and
+      the cursor, re-checks the text first, verifies afterwards, offers Copy if the app didn't take it.
+- [x] Errors: no Full Access, offline, timeout, 4xx messages from the backend (limits, length), 5xx.
+- [x] Unit tests (`ios/RunnerTests/KeyboardTextEditingTests.swift`, 12 tests): capture, replacement
+      with the cursor at the end and in the middle, whitespace, umlauts and emoji, selection, diff.
+- [x] Confirmed on a real iPhone (iOS 26.5): Correct and Replace work.
+- [ ] Tune the cut-off threshold per app (rerun the context readout in WhatsApp, iMessage, Gmail,
+      Instagram with typed and pasted text).
 - **Done when:** in each of the four apps, a typed message under ~200 characters can be corrected and replaced in three taps or fewer, and every error state shows a clear message.
 
 ## Phase 3: Sharing sign-in between app and keyboard (2–3 days)
