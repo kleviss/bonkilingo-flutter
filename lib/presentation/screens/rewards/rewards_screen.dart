@@ -11,6 +11,9 @@ import '../../widgets/brand/brand_surfaces.dart';
 import '../../widgets/brand/glow_background.dart';
 import '../../widgets/brand/highlighted_title.dart';
 import '../../widgets/cupertino_app_bar.dart';
+import '../../widgets/brand/fade_top_edge.dart';
+import '../../providers/auth_provider.dart';
+import 'wallet_address_sheet.dart';
 
 class RewardsScreen extends ConsumerStatefulWidget {
   const RewardsScreen({super.key});
@@ -44,62 +47,64 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         backgroundColor: const Color(0x00000000),
         navigationBar:
             const CupertinoAppBar(title: 'Rewards', transparent: true),
-        child: SafeArea(
-          child: rewardsState.isLoading && balance == null
-              ? const Center(child: CupertinoActivityIndicator())
-              : CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    CupertinoSliverRefreshControl(
-                      onRefresh: () async {
-                        await ref
-                            .read(rewardsStateProvider.notifier)
-                            .loadData();
-                      },
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate([
-                          HighlightedTitle(
-                            'Earn *BONK*',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.8,
-                              height: 1.15,
-                              color: p.text,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'For every correction, lesson and day of your streak.',
-                            style: TextStyle(fontSize: 16, color: p.muted),
-                          ),
-                          const SizedBox(height: 20),
-                          _buildBalanceCard(p, pendingBalance, balance),
-                          const SizedBox(height: 12),
-                          _buildWalletSection(p, balance),
-                          const SizedBox(height: 32),
-                          _buildHowToEarnSection(p, rewardsState.config),
-                          const SizedBox(height: 32),
-                          _buildRecentActivitySection(
-                            p,
-                            rewardsState.rewardHistory,
-                          ),
-                          if (rewardsState.withdrawalHistory.isNotEmpty) ...[
-                            const SizedBox(height: 32),
-                            _buildWithdrawalHistorySection(
-                              p,
-                              rewardsState.withdrawalHistory,
-                            ),
-                          ],
-                        ]),
+        child: FadeTopEdge(
+          child: SafeArea(
+            child: rewardsState.isLoading && balance == null
+                ? const Center(child: CupertinoActivityIndicator())
+                : CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      CupertinoSliverRefreshControl(
+                        onRefresh: () async {
+                          await ref
+                              .read(rewardsStateProvider.notifier)
+                              .loadData();
+                        },
                       ),
-                    ),
-                  ],
-                ),
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            HighlightedTitle(
+                              'Earn *BONK*',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.8,
+                                height: 1.15,
+                                color: p.text,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'For every correction, lesson and day of your streak.',
+                              style: TextStyle(fontSize: 16, color: p.muted),
+                            ),
+                            const SizedBox(height: 20),
+                            _buildBalanceCard(p, pendingBalance, balance),
+                            const SizedBox(height: 12),
+                            _buildWalletSection(p, balance),
+                            const SizedBox(height: 32),
+                            _buildHowToEarnSection(p, rewardsState.config),
+                            const SizedBox(height: 32),
+                            _buildRecentActivitySection(
+                              p,
+                              rewardsState.rewardHistory,
+                            ),
+                            if (rewardsState.withdrawalHistory.isNotEmpty) ...[
+                              const SizedBox(height: 32),
+                              _buildWithdrawalHistorySection(
+                                p,
+                                rewardsState.withdrawalHistory,
+                              ),
+                            ],
+                          ]),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
@@ -542,53 +547,16 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
 
   // ========== Dialogs ==========
 
-  void _showAddWalletDialog() {
-    final controller = TextEditingController();
-
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Connect Solana Wallet'),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: Column(
-            children: [
-              const Text(
-                'Enter your Solana wallet address to receive BONK tokens.',
-                style: TextStyle(fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              CupertinoTextField(
-                controller: controller,
-                placeholder: 'Solana wallet address',
-                style: const TextStyle(fontSize: 13, fontFamily: 'monospace'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () async {
-              Navigator.of(context).pop();
-              final success = await ref
-                  .read(rewardsStateProvider.notifier)
-                  .updateWalletAddress(controller.text.trim());
-              if (success) {
-                _showToast('Wallet connected successfully!');
-              } else {
-                _showToast('Failed to connect wallet');
-              }
-            },
-            child: const Text('Connect'),
-          ),
-        ],
-      ),
+  Future<void> _showAddWalletDialog() async {
+    final saved = await WalletAddressSheet.show(
+      context,
+      isDark: ref.read(themeModeProvider) == ThemeMode.dark,
+      isSignedIn: ref.read(currentUserProvider).value != null,
+      currentAddress: ref.read(rewardsStateProvider).balance?.walletAddress,
+      onSave: (address) =>
+          ref.read(rewardsStateProvider.notifier).updateWalletAddress(address),
     );
+    if (saved == true && mounted) _showToast('Wallet connected');
   }
 
   void _showEditWalletDialog() {

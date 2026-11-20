@@ -15,6 +15,7 @@ import '../../widgets/cupertino_app_bar.dart';
 import '../../widgets/cupertino_correction_card.dart';
 import '../history/history_screen.dart';
 import 'home_provider.dart';
+import '../../widgets/brand/fade_top_edge.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -53,320 +54,323 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: const Color(0x00000000),
         navigationBar:
             const CupertinoAppBar(title: 'Bonkilingo', transparent: true),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Headline
-                HighlightedTitle(
-                  'What will you *write* today?',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.8,
-                    height: 1.15,
-                    color: p.text,
+        child: FadeTopEdge(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Headline
+                  HighlightedTitle(
+                    'What will you *write* today?',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.8,
+                      height: 1.15,
+                      color: p.text,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Bonkilingo fixes it and tells you why.',
-                  style: TextStyle(fontSize: 16, color: p.muted),
-                ),
-
-                if (isSignedIn) ...[
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      _StatPill(
-                        palette: p,
-                        icon: Icons.local_fire_department,
-                        iconColor: BrandColors.tangerine,
-                        label: '${profile?.streakDays ?? 0} day streak',
-                      ),
-                      const SizedBox(width: 8),
-                      _StatPill(
-                        palette: p,
-                        icon: Icons.star_rounded,
-                        iconColor: BrandColors.sunny,
-                        label: '${(profile?.bonkPoints ?? 0).formatted} BONK',
-                      ),
-                    ],
+                  const SizedBox(height: 6),
+                  Text(
+                    'Bonkilingo fixes it and tells you why.',
+                    style: TextStyle(fontSize: 16, color: p.muted),
                   ),
-                ],
 
-                const SizedBox(height: 20),
+                  if (isSignedIn) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        _StatPill(
+                          palette: p,
+                          icon: Icons.local_fire_department,
+                          iconColor: BrandColors.tangerine,
+                          label: '${profile?.streakDays ?? 0} day streak',
+                        ),
+                        const SizedBox(width: 8),
+                        _StatPill(
+                          palette: p,
+                          icon: Icons.star_rounded,
+                          iconColor: BrandColors.sunny,
+                          label: '${(profile?.bonkPoints ?? 0).formatted} BONK',
+                        ),
+                      ],
+                    ),
+                  ],
 
-                // Composer
-                Container(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                  decoration: BoxDecoration(
-                    color: p.card,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: p.cardShadow,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          // Language chip
-                          Flexible(
-                            child: CupertinoButton(
-                              padding: EdgeInsets.zero,
-                              minSize: 36,
-                              onPressed: languageLocked
-                                  ? null
-                                  : () => _showLanguagePicker(context, theme),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: p.cardSunken,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.translate,
-                                      size: 16,
-                                      color: p.muted,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Flexible(
-                                      child: Text(
-                                        _getLanguageName(
-                                          homeState.detectedLanguage ??
-                                              homeState.selectedLanguage,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: p.text,
-                                        ),
-                                      ),
-                                    ),
-                                    if (!languageLocked) ...[
-                                      const SizedBox(width: 2),
+                  const SizedBox(height: 20),
+
+                  // Composer
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                    decoration: BoxDecoration(
+                      color: p.card,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: p.cardShadow,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            // Language chip
+                            Flexible(
+                              child: CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                minSize: 36,
+                                onPressed: languageLocked
+                                    ? null
+                                    : () => _showLanguagePicker(context, theme),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: p.cardSunken,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
                                       Icon(
-                                        Icons.unfold_more,
+                                        Icons.translate,
                                         size: 16,
                                         color: p.muted,
                                       ),
+                                      const SizedBox(width: 6),
+                                      Flexible(
+                                        child: Text(
+                                          _getLanguageName(
+                                            homeState.detectedLanguage ??
+                                                homeState.selectedLanguage,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: p.text,
+                                          ),
+                                        ),
+                                      ),
+                                      if (!languageLocked) ...[
+                                        const SizedBox(width: 2),
+                                        Icon(
+                                          Icons.unfold_more,
+                                          size: 16,
+                                          color: p.muted,
+                                        ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              'Auto-detect',
+                              style: TextStyle(fontSize: 13, color: p.muted),
+                            ),
+                            const SizedBox(width: 4),
+                            Transform.scale(
+                              scale: 0.8,
+                              child: CupertinoSwitch(
+                                value: homeState.autoDetect,
+                                onChanged: (_) => ref
+                                    .read(homeStateProvider.notifier)
+                                    .toggleAutoDetect(),
+                                activeTrackColor: BrandColors.tangerine,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Detection status
+                        if (homeState.autoDetect && homeState.isDetecting)
+                          _StatusLine(
+                            palette: p,
+                            leading:
+                                const CupertinoActivityIndicator(radius: 6),
+                            text: 'Detecting language…',
+                          ),
+                        if (homeState.autoDetect &&
+                            homeState.detectedLanguage != null &&
+                            !homeState.isDetecting)
+                          _StatusLine(
+                            palette: p,
+                            leading: const Icon(
+                              Icons.check_circle,
+                              size: 14,
+                              color: BrandPalette.green,
+                            ),
+                            text:
+                                'Detected ${_getLanguageName(homeState.detectedLanguage!)}',
+                          ),
+
+                        // Text input
+                        // Keyed with an owned focus node: the status lines
+                        // above appear while typing, and without a key the
+                        // field is rebuilt and drops focus mid-sentence.
+                        CupertinoTextField(
+                          key: const ValueKey('composer-input'),
+                          focusNode: _inputFocus,
+                          controller: _textController,
+                          placeholder: 'Type or paste a sentence…',
+                          minLines: 4,
+                          maxLines: 10,
+                          padding: const EdgeInsets.only(top: 12, bottom: 4),
+                          decoration: null,
+                          style: TextStyle(
+                            color: p.text,
+                            fontSize: 18,
+                            height: 1.4,
+                          ),
+                          placeholderStyle: TextStyle(
+                            color: p.muted,
+                            fontSize: 18,
+                            height: 1.4,
+                          ),
+                          cursorColor: BrandColors.tangerine,
+                          onChanged: (text) {
+                            setState(() {
+                              _inputText = text;
+                            });
+                            ref
+                                .read(homeStateProvider.notifier)
+                                .onTextChanged(text);
+                          },
+                        ),
+
+                        // Clear
+                        if (_inputText.isNotEmpty)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              minSize: 32,
+                              onPressed: () {
+                                _textController.clear();
+                                setState(() => _inputText = '');
+                                ref
+                                    .read(homeStateProvider.notifier)
+                                    .onTextChanged('');
+                              },
+                              child: Text(
+                                'Clear',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: p.muted,
                                 ),
                               ),
                             ),
                           ),
-                          const Spacer(),
-                          Text(
-                            'Auto-detect',
-                            style: TextStyle(fontSize: 13, color: p.muted),
-                          ),
-                          const SizedBox(width: 4),
-                          Transform.scale(
-                            scale: 0.8,
-                            child: CupertinoSwitch(
-                              value: homeState.autoDetect,
-                              onChanged: (_) => ref
-                                  .read(homeStateProvider.notifier)
-                                  .toggleAutoDetect(),
-                              activeTrackColor: BrandColors.tangerine,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Detection status
-                      if (homeState.autoDetect && homeState.isDetecting)
-                        _StatusLine(
-                          palette: p,
-                          leading: const CupertinoActivityIndicator(radius: 6),
-                          text: 'Detecting language…',
-                        ),
-                      if (homeState.autoDetect &&
-                          homeState.detectedLanguage != null &&
-                          !homeState.isDetecting)
-                        _StatusLine(
-                          palette: p,
-                          leading: const Icon(
-                            Icons.check_circle,
-                            size: 14,
-                            color: BrandPalette.green,
-                          ),
-                          text:
-                              'Detected ${_getLanguageName(homeState.detectedLanguage!)}',
-                        ),
-
-                      // Text input
-                      // Keyed with an owned focus node: the status lines
-                      // above appear while typing, and without a key the
-                      // field is rebuilt and drops focus mid-sentence.
-                      CupertinoTextField(
-                        key: const ValueKey('composer-input'),
-                        focusNode: _inputFocus,
-                        controller: _textController,
-                        placeholder: 'Type or paste a sentence…',
-                        minLines: 4,
-                        maxLines: 10,
-                        padding: const EdgeInsets.only(top: 12, bottom: 4),
-                        decoration: null,
-                        style: TextStyle(
-                          color: p.text,
-                          fontSize: 18,
-                          height: 1.4,
-                        ),
-                        placeholderStyle: TextStyle(
-                          color: p.muted,
-                          fontSize: 18,
-                          height: 1.4,
-                        ),
-                        cursorColor: BrandColors.tangerine,
-                        onChanged: (text) {
-                          setState(() {
-                            _inputText = text;
-                          });
-                          ref
-                              .read(homeStateProvider.notifier)
-                              .onTextChanged(text);
-                        },
-                      ),
-
-                      // Clear
-                      if (_inputText.isNotEmpty)
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            minSize: 32,
-                            onPressed: () {
-                              _textController.clear();
-                              setState(() => _inputText = '');
-                              ref
-                                  .read(homeStateProvider.notifier)
-                                  .onTextChanged('');
-                            },
-                            child: Text(
-                              'Clear',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: p.muted,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Correct
-                PillButton(
-                  label: 'Correct',
-                  loading: homeState.isLoading,
-                  onPressed: _inputText.trim().isEmpty
-                      ? null
-                      : () {
-                          FocusScope.of(context).unfocus();
-                          ref
-                              .read(homeStateProvider.notifier)
-                              .correctText(_inputText);
-                        },
-                ),
-
-                if (homeState.error != null && !homeState.isLoading) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    homeState.error!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: BrandPalette.red,
+                      ],
                     ),
                   ),
-                ],
 
-                const SizedBox(height: 32),
+                  const SizedBox(height: 16),
 
-                // Corrections
-                Row(
-                  children: [
+                  // Correct
+                  PillButton(
+                    label: 'Correct',
+                    loading: homeState.isLoading,
+                    onPressed: _inputText.trim().isEmpty
+                        ? null
+                        : () {
+                            FocusScope.of(context).unfocus();
+                            ref
+                                .read(homeStateProvider.notifier)
+                                .correctText(_inputText);
+                          },
+                  ),
+
+                  if (homeState.error != null && !homeState.isLoading) ...[
+                    const SizedBox(height: 12),
                     Text(
-                      'Corrections',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.4,
-                        color: p.text,
-                      ),
-                    ),
-                    const Spacer(),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      minSize: 32,
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          CupertinoPageRoute(
-                            builder: (context) => const HistoryScreen(),
-                          ),
-                        );
-                      },
-                      child: Row(
-                        children: [
-                          Text(
-                            'History',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: p.text,
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: 18,
-                            color: p.muted,
-                          ),
-                        ],
+                      homeState.error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: BrandPalette.red,
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 12),
 
-                if (homeState.correctedText != null)
-                  CupertinoCorrectionCard(
-                    correctedText: homeState.correctedText!,
-                    inputText: _inputText,
-                  )
-                else ...[
-                  // Show what a result looks like until there is one.
-                  const Opacity(
-                    opacity: 0.75,
-                    child: CupertinoCorrectionCard(
-                      inputText: 'I goed to the store yesterday.',
-                      correctedText: 'I went to the store yesterday.',
-                      example: true,
-                    ),
+                  const SizedBox(height: 32),
+
+                  // Corrections
+                  Row(
+                    children: [
+                      Text(
+                        'Corrections',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.4,
+                          color: p.text,
+                        ),
+                      ),
+                      const Spacer(),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        minSize: 32,
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            CupertinoPageRoute(
+                              builder: (context) => const HistoryScreen(),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              'History',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: p.text,
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 18,
+                              color: p.muted,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    'Your corrections will show up here, like this example.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: p.muted),
-                  ),
+
+                  if (homeState.correctedText != null)
+                    CupertinoCorrectionCard(
+                      correctedText: homeState.correctedText!,
+                      inputText: _inputText,
+                    )
+                  else ...[
+                    // Show what a result looks like until there is one.
+                    const Opacity(
+                      opacity: 0.75,
+                      child: CupertinoCorrectionCard(
+                        inputText: 'I goed to the store yesterday.',
+                        correctedText: 'I went to the store yesterday.',
+                        example: true,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Your corrections will show up here, like this example.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: p.muted),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

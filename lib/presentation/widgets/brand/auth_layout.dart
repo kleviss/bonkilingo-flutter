@@ -4,6 +4,7 @@ import '../../../core/theme/brand_colors.dart';
 import 'brand_mark.dart';
 import 'glow_background.dart';
 import 'highlighted_title.dart';
+import 'fade_top_edge.dart';
 
 /// Shared frame for sign-in and sign-up: brand glow, a back button, the app
 /// mark, a highlighted title, then the form.
@@ -46,34 +47,36 @@ class AuthLayout extends StatelessWidget {
             ),
           ),
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Center(child: BrandMark(size: 64)),
-                const SizedBox(height: 20),
-                HighlightedTitle(
-                  title,
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.9,
-                    height: 1.15,
-                    color: p.text,
+        child: FadeTopEdge(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Center(child: BrandMark(size: 64)),
+                  const SizedBox(height: 20),
+                  HighlightedTitle(
+                    title,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.9,
+                      height: 1.15,
+                      color: p.text,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, height: 1.4, color: p.muted),
-                ),
-                const SizedBox(height: 32),
-                ...children,
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    subtitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, height: 1.4, color: p.muted),
+                  ),
+                  const SizedBox(height: 32),
+                  ...children,
+                ],
+              ),
             ),
           ),
         ),

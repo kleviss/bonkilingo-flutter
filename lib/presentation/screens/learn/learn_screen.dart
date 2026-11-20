@@ -19,6 +19,7 @@ import 'sentence_construction_screen.dart';
 import 'grammar_exercise_screen.dart';
 import 'structured_lesson_screen.dart'
     show StructuredLessonScreen, LessonContent;
+import '../../widgets/brand/fade_top_edge.dart';
 
 const _blue = Color(0xFF4F8EF7);
 const _purple = Color(0xFFB07CF5);
@@ -48,150 +49,152 @@ class LearnScreen extends ConsumerWidget {
       child: CupertinoPageScaffold(
         backgroundColor: const Color(0x00000000),
         navigationBar: const CupertinoAppBar(title: 'Learn', transparent: true),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                HighlightedTitle(
-                  'Learn from your *mistakes*',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.8,
-                    height: 1.15,
-                    color: p.text,
+        child: FadeTopEdge(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HighlightedTitle(
+                    'Learn from your *mistakes*',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.8,
+                      height: 1.15,
+                      color: p.text,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Lessons and quizzes built from what you write.',
-                  style: TextStyle(fontSize: 16, color: p.muted),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Lessons and quizzes built from what you write.',
+                    style: TextStyle(fontSize: 16, color: p.muted),
+                  ),
+                  const SizedBox(height: 20),
 
-                // Suggested for you: lessons on what the learner keeps
-                // getting corrected (in the app and with the keyboard).
-                _SuggestedForYou(palette: p),
-                const SizedBox(height: 32),
+                  // Suggested for you: lessons on what the learner keeps
+                  // getting corrected (in the app and with the keyboard).
+                  _SuggestedForYou(palette: p),
+                  const SizedBox(height: 32),
 
-                // Learning tools
-                BrandSectionTitle('Tools', palette: p),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: _ToolTile(
-                        palette: p,
-                        icon: Icons.bolt,
-                        color: BrandColors.tangerine,
-                        title: 'Tiny lesson',
-                        description: 'Words and phrases for any situation',
-                        onTap: () => ref
-                            .read(learnStateProvider.notifier)
-                            .setActiveTool(LearnTool.tinyLesson),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _ToolTile(
-                        palette: p,
-                        icon: Icons.bookmark_outline,
-                        color: BrandColors.leaf,
-                        title: 'Cheatsheet',
-                        description: 'Your saved lessons and flashcards',
-                        onTap: () => ref
-                            .read(learnStateProvider.notifier)
-                            .setActiveTool(LearnTool.flashcards),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // Practice from your corrections
-                BrandSectionTitle('Practice your corrections', palette: p),
-                BrandCard(
-                  palette: p,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Column(
+                  // Learning tools
+                  BrandSectionTitle('Tools', palette: p),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BrandListRow(
-                        palette: p,
-                        leading: BrandIconBadge(
-                          icon: Icons.quiz_outlined,
-                          color: _blue,
-                          isDark: isDark,
+                      Expanded(
+                        child: _ToolTile(
+                          palette: p,
+                          icon: Icons.bolt,
+                          color: BrandColors.tangerine,
+                          title: 'Tiny lesson',
+                          description: 'Words and phrases for any situation',
+                          onTap: () => ref
+                              .read(learnStateProvider.notifier)
+                              .setActiveTool(LearnTool.tinyLesson),
                         ),
-                        title: 'Vocabulary quiz',
-                        subtitle: 'Words from your corrections',
-                        onTap: () => push(const VocabularyQuizScreen()),
                       ),
-                      BrandRowDivider(palette: p),
-                      BrandListRow(
-                        palette: p,
-                        leading: BrandIconBadge(
-                          icon: Icons.view_agenda_outlined,
-                          color: _purple,
-                          isDark: isDark,
-                        ),
-                        title: 'Sentence building',
-                        subtitle: 'Put corrected words in order',
-                        onTap: () => push(const SentenceConstructionScreen()),
-                      ),
-                      BrandRowDivider(palette: p),
-                      BrandListRow(
-                        palette: p,
-                        leading: BrandIconBadge(
-                          icon: Icons.spellcheck,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ToolTile(
+                          palette: p,
+                          icon: Icons.bookmark_outline,
                           color: BrandColors.leaf,
-                          isDark: isDark,
+                          title: 'Cheatsheet',
+                          description: 'Your saved lessons and flashcards',
+                          onTap: () => ref
+                              .read(learnStateProvider.notifier)
+                              .setActiveTool(LearnTool.flashcards),
                         ),
-                        title: 'Grammar exercises',
-                        subtitle: 'The rules behind your fixes',
-                        onTap: () => push(const GrammarExerciseScreen()),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                // Courses
-                BrandSectionTitle('Courses', palette: p),
-                BrandCard(
-                  palette: p,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Column(
-                    children: [
-                      BrandListRow(
-                        palette: p,
-                        leading: _LanguageBadge(
-                          code: 'ES',
-                          color: BrandColors.ribbon,
-                          isDark: isDark,
+                  // Practice from your corrections
+                  BrandSectionTitle('Practice your corrections', palette: p),
+                  BrandCard(
+                    palette: p,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      children: [
+                        BrandListRow(
+                          palette: p,
+                          leading: BrandIconBadge(
+                            icon: Icons.quiz_outlined,
+                            color: _blue,
+                            isDark: isDark,
+                          ),
+                          title: 'Vocabulary quiz',
+                          subtitle: 'Words from your corrections',
+                          onTap: () => push(const VocabularyQuizScreen()),
                         ),
-                        title: 'Beginner Spanish',
-                        subtitle: 'Greetings, common phrases, questions',
-                        onTap: () => push(_beginnerSpanish()),
-                      ),
-                      BrandRowDivider(palette: p),
-                      BrandListRow(
-                        palette: p,
-                        leading: _LanguageBadge(
-                          code: 'FR',
-                          color: _blue,
-                          isDark: isDark,
+                        BrandRowDivider(palette: p),
+                        BrandListRow(
+                          palette: p,
+                          leading: BrandIconBadge(
+                            icon: Icons.view_agenda_outlined,
+                            color: _purple,
+                            isDark: isDark,
+                          ),
+                          title: 'Sentence building',
+                          subtitle: 'Put corrected words in order',
+                          onTap: () => push(const SentenceConstructionScreen()),
                         ),
-                        title: 'Intermediate French',
-                        subtitle: 'Past, future and conditional',
-                        onTap: () => push(_intermediateFrench()),
-                      ),
-                    ],
+                        BrandRowDivider(palette: p),
+                        BrandListRow(
+                          palette: p,
+                          leading: BrandIconBadge(
+                            icon: Icons.spellcheck,
+                            color: BrandColors.leaf,
+                            isDark: isDark,
+                          ),
+                          title: 'Grammar exercises',
+                          subtitle: 'The rules behind your fixes',
+                          onTap: () => push(const GrammarExerciseScreen()),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 32),
+
+                  // Courses
+                  BrandSectionTitle('Courses', palette: p),
+                  BrandCard(
+                    palette: p,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      children: [
+                        BrandListRow(
+                          palette: p,
+                          leading: _LanguageBadge(
+                            code: 'ES',
+                            color: BrandColors.ribbon,
+                            isDark: isDark,
+                          ),
+                          title: 'Beginner Spanish',
+                          subtitle: 'Greetings, common phrases, questions',
+                          onTap: () => push(_beginnerSpanish()),
+                        ),
+                        BrandRowDivider(palette: p),
+                        BrandListRow(
+                          palette: p,
+                          leading: _LanguageBadge(
+                            code: 'FR',
+                            color: _blue,
+                            isDark: isDark,
+                          ),
+                          title: 'Intermediate French',
+                          subtitle: 'Past, future and conditional',
+                          onTap: () => push(_intermediateFrench()),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -18,11 +18,11 @@ class MainNavigation extends ConsumerWidget {
     final currentIndex = ref.watch(navigationIndexProvider);
 
     return KeyboardHistorySyncObserver(
-      child: _buildScaffold(ref, currentIndex),
+      child: _buildScaffold(context, ref, currentIndex),
     );
   }
 
-  Widget _buildScaffold(WidgetRef ref, int currentIndex) {
+  Widget _buildScaffold(BuildContext context, WidgetRef ref, int currentIndex) {
     return CupertinoPageScaffold(
       // Keep the tab bar pinned to the bottom of the screen when the
       // keyboard opens. Each tab's own scaffold still sees the keyboard
@@ -31,16 +31,23 @@ class MainNavigation extends ConsumerWidget {
       child: Column(
         children: [
           Expanded(
-            child: IndexedStack(
-              // Tabs fill the space above the tab bar even when their
-              // content is short (Home's glow background needs this).
-              sizing: StackFit.expand,
-              index: currentIndex,
-              children: const [
-                HomeScreen(),
-                RewardsScreen(),
-                LearnScreen(),
-              ],
+            // The tab bar below already sits over the home indicator, so the
+            // tabs mustn't reserve that space too: their SafeAreas would cut
+            // the content off about 34pt above the tab bar.
+            child: MediaQuery.removePadding(
+              context: context,
+              removeBottom: true,
+              child: IndexedStack(
+                // Tabs fill the space above the tab bar even when their
+                // content is short (Home's glow background needs this).
+                sizing: StackFit.expand,
+                index: currentIndex,
+                children: const [
+                  HomeScreen(),
+                  RewardsScreen(),
+                  LearnScreen(),
+                ],
+              ),
             ),
           ),
           CupertinoTabBar(
@@ -75,4 +82,3 @@ class MainNavigation extends ConsumerWidget {
     );
   }
 }
-
