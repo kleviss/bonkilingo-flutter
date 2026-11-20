@@ -115,6 +115,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          // The chip takes its natural width; with a Spacer
+                          // next to a Flexible the two split the free space
+                          // and "English" was cut to "E…".
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             // Language chip
                             Flexible(
@@ -169,21 +173,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                               ),
                             ),
-                            const Spacer(),
-                            Text(
-                              'Auto-detect',
-                              style: TextStyle(fontSize: 13, color: p.muted),
-                            ),
-                            const SizedBox(width: 4),
-                            Transform.scale(
-                              scale: 0.8,
-                              child: CupertinoSwitch(
-                                value: homeState.autoDetect,
-                                onChanged: (_) => ref
-                                    .read(homeStateProvider.notifier)
-                                    .toggleAutoDetect(),
-                                activeTrackColor: BrandColors.tangerine,
-                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Auto-detect',
+                                  style:
+                                      TextStyle(fontSize: 13, color: p.muted),
+                                ),
+                                const SizedBox(width: 4),
+                                Transform.scale(
+                                  scale: 0.8,
+                                  child: CupertinoSwitch(
+                                    value: homeState.autoDetect,
+                                    onChanged: (_) => ref
+                                        .read(homeStateProvider.notifier)
+                                        .toggleAutoDetect(),
+                                    activeTrackColor: BrandColors.tangerine,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
