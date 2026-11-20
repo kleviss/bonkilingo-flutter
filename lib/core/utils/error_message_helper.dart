@@ -21,6 +21,14 @@ class ErrorMessageHelper {
       return _parseServerException(error);
     }
 
+    // 4xx from our API: the backend writes these messages for users.
+    if (error is ApiException &&
+        error.statusCode != null &&
+        error.statusCode! >= 400 &&
+        error.statusCode! < 500) {
+      return error.message;
+    }
+
     // Try to parse string errors that might contain Supabase error info
     final errorString = error.toString();
     return _parseStringError(errorString);
@@ -30,6 +38,9 @@ class ErrorMessageHelper {
   static String _parseAuthException(AuthException error) {
     // Check for specific error codes
     final message = error.message.toLowerCase();
+
+    final serverFailure = _serverSideAuthFailure(message);
+    if (serverFailure != null) return serverFailure;
 
     if (message.contains('invalid_credentials') ||
         message.contains('invalid login') ||
@@ -81,7 +92,10 @@ class ErrorMessageHelper {
       cleanMessage = cleanMessage.replaceAll(RegExp(r',\s*code:.*$'), '');
       cleanMessage = cleanMessage.trim();
 
-      if (cleanMessage.isNotEmpty && cleanMessage.length < 200) {
+      // Raw JSON from the auth server isn't a message for people.
+      if (cleanMessage.isNotEmpty &&
+          cleanMessage.length < 200 &&
+          !cleanMessage.startsWith('{')) {
         return cleanMessage;
       }
     }
@@ -89,10 +103,28 @@ class ErrorMessageHelper {
     return 'An authentication error occurred. Please try again.';
   }
 
+  /// Failures on the auth server's side (not the user's input). Supabase
+  /// reports some of them as raw JSON, e.g.
+  /// {"code":"unexpected_failure","message":"Error sending confirmation email"}.
+  static String? _serverSideAuthFailure(String lowerMessage) {
+    if (lowerMessage.contains('confirmation email') ||
+        lowerMessage.contains('sending email') ||
+        lowerMessage.contains('email rate limit')) {
+      return "We couldn't send your confirmation email right now. Please try again in a few minutes.";
+    }
+    if (lowerMessage.contains('unexpected_failure')) {
+      return 'Something went wrong on our side. Please try again in a few minutes.';
+    }
+    return null;
+  }
+
   /// Parse AppAuthException (wrapper around Supabase errors)
   static String _parseAppAuthException(AppAuthException error) {
     final message = error.message;
     final lowerMessage = message.toLowerCase();
+
+    final serverFailure = _serverSideAuthFailure(lowerMessage);
+    if (serverFailure != null) return serverFailure;
 
     // Check if it contains AuthException info (e.g., "AuthApiException (message: ...)")
     if (lowerMessage.contains('authapiexception')) {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/language_constants.dart';
+import '../../../core/utils/error_message_helper.dart';
 import '../../../data/models/correction_request.dart';
 import '../../providers/providers.dart';
 import '../../providers/user_provider.dart';
@@ -148,11 +149,16 @@ class HomeStateNotifier extends StateNotifier<HomeState> {
   Future<void> correctText(String inputText) async {
     if (inputText.trim().isEmpty) return;
 
+    // Read the language before copyWith below: it resets detectedLanguage.
+    // With auto-detect on but nothing detected yet, send 'auto' so the server
+    // keeps the input's own language instead of assuming the picker's.
+    final language = state.detectedLanguage ??
+        (state.autoDetect ? 'auto' : state.selectedLanguage);
+
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final language = state.detectedLanguage ?? state.selectedLanguage;
-      
+
       final request = CorrectionRequest(
         text: inputText,
         language: language,
@@ -165,7 +171,7 @@ class HomeStateNotifier extends StateNotifier<HomeState> {
       final points = _pointsService.calculateCorrectionPoints(inputText);
       _userProfileState.addBonkPoints(points);
       _userProfileState.incrementCorrections();
-      _userProfileState.addLanguage(language);
+      if (language != 'auto') _userProfileState.addLanguage(language);
 
       // Save chat session
       await _correctionRepository.saveChatSession(
@@ -183,7 +189,7 @@ class HomeStateNotifier extends StateNotifier<HomeState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: e.toString(),
+        error: ErrorMessageHelper.getUserFriendlyMessage(e),
       );
     }
   }

@@ -135,6 +135,9 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
       );
 
       final lesson = await _lessonRepository.generateLesson(request);
+      // The provider rebuilds (and disposes this notifier) when the signed-in
+      // user changes, so a request can finish after dispose.
+      if (!mounted) return;
 
       // Award points for generating a lesson
       _userProfileState.addBonkPoints(10);
@@ -144,6 +147,7 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
         isLoading: false,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -164,6 +168,7 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
         title: title,
         content: state.generatedLesson!,
       );
+      if (!mounted) return;
 
       // Award points for saving
       final points = _pointsService.getLessonSavePoints();
@@ -174,6 +179,7 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
         savedLessons: [lesson, ...state.savedLessons],
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(error: e.toString());
     }
   }
@@ -181,9 +187,11 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
   Future<void> _loadSavedLessons() async {
     try {
       final lessons = await _lessonRepository.getSavedLessons(_userId);
+      if (!mounted) return;
       // copyWith will preserve activeTool automatically now
       state = state.copyWith(savedLessons: lessons);
     } catch (e) {
+      if (!mounted) return;
       // copyWith will preserve activeTool automatically now
       state = state.copyWith(error: e.toString());
     }
@@ -192,13 +200,15 @@ class LearnStateNotifier extends StateNotifier<LearnState> {
   Future<void> deleteLesson(String lessonId) async {
     try {
       await _lessonRepository.deleteLesson(lessonId, _userId);
-      
+      if (!mounted) return;
+
       final updatedLessons = state.savedLessons
           .where((lesson) => lesson.id != lessonId)
           .toList();
       
       state = state.copyWith(savedLessons: updatedLessons);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(error: e.toString());
     }
   }

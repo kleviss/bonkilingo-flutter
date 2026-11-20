@@ -7,15 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07556D6002612009249738C5 /* KeyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBDF8F14D076D9D0C7BE839 /* KeyButton.swift */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
+		25B2E1F77ED2BD17517FFCB1 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59334DF1069DB21721A032F7 /* KeyboardView.swift */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
+		373F2E00F9B49E9DEBEF8D14 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B95F8756FB7A0BE6DA79B22 /* APIClient.swift */; };
+		37FF9A65673BC7DC1289EF13 /* CorrectionPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44D688B75D64ED68C462508 /* CorrectionPanel.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		4120633BD75A8A41BC1BF54E /* KeyboardTextEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0F2F09DFB53FD039672AD9 /* KeyboardTextEditingTests.swift */; };
+		5C0302D91114A922FDD2768C /* KeyboardAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = D75B2D96EF1118E3CFB65531 /* KeyboardAuth.swift */; };
+		70BD428C1482E0111CF6A5D6 /* TextEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D75EE09F24339719176B967 /* TextEditing.swift */; };
+		745AD46745CE3E6C26251D11 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 78C704042B13C88F43C008E6 /* PrivacyInfo.xcprivacy */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
+		76047E4C2FCB75B3EFED88F3 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0B01397D43AA71AD92338E /* KeyboardViewController.swift */; };
+		80382BC74340DD528AC75A93 /* BonkilingoKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6A9830DBBCBEC0977E87DF8F /* BonkilingoKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8E3C41CADF0A2DE125F6D089 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E53B44D5814D0669C8F5C3F3 /* Foundation.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		9B74D0B65F75BFF34337DFC4 /* BonkilingoBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD2B010C9A031F57808AC5 /* BonkilingoBar.swift */; };
+		B252E55D3C6D98ADFE034092 /* TextEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D75EE09F24339719176B967 /* TextEditing.swift */; };
 		C34A2C4CCE33BF583F124898 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1856A6B6F0CFB7A011AC910 /* Pods_RunnerTests.framework */; };
+		C9125B0F64150889FA47D68E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A41534DB9FE414A1BCCEDAAF /* PrivacyInfo.xcprivacy */; };
 		D81E9B4B0D23D696688C68B3 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 075DCE457E8970B092B32F38 /* Pods_Runner.framework */; };
+		DEFFD3BC73B2F38CCBD8C571 /* KeyboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE0CF81A201CED676296E7B /* KeyboardLayout.swift */; };
+		F5A8566AC5E45165F95614A5 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19461950AB9EA6115F025FB /* Settings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,9 +42,27 @@
 			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
 			remoteInfo = Runner;
 		};
+		456173C614D1E8A09C9F5005 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FE3956B5BFB7834007DC7913;
+			remoteInfo = BonkilingoKeyboard;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		5B369F4C3FA6181D4B8A1BB9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				80382BC74340DD528AC75A93 /* BonkilingoKeyboard.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -44,15 +78,24 @@
 /* Begin PBXFileReference section */
 		021A47E4395CD3DDBF559721 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		075DCE457E8970B092B32F38 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B0B01397D43AA71AD92338E /* KeyboardViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		1A2D02084D023E86829A2B35 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		1DE0CF81A201CED676296E7B /* KeyboardLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyboardLayout.swift; sourceTree = "<group>"; };
+		1EBDF8F14D076D9D0C7BE839 /* KeyButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyButton.swift; sourceTree = "<group>"; };
+		2178B0439C1196897551EE79 /* Keyboard.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Keyboard.xcconfig; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3B95F8756FB7A0BE6DA79B22 /* APIClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		3D75EE09F24339719176B967 /* TextEditing.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextEditing.swift; sourceTree = "<group>"; };
+		59334DF1069DB21721A032F7 /* KeyboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
+		6A9830DBBCBEC0977E87DF8F /* BonkilingoKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BonkilingoKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E388D24EE145CECEB3CDCB4 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		78C704042B13C88F43C008E6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		8AEEF77E1B7B9AB30B3164E3 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
@@ -63,7 +106,15 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1856A6B6F0CFB7A011AC910 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A19461950AB9EA6115F025FB /* Settings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		A41534DB9FE414A1BCCEDAAF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A5ADC594D06F51896DD43321 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C69231B43D59FEB204DC18A3 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D44D688B75D64ED68C462508 /* CorrectionPanel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CorrectionPanel.swift; sourceTree = "<group>"; };
+		D75B2D96EF1118E3CFB65531 /* KeyboardAuth.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyboardAuth.swift; sourceTree = "<group>"; };
+		DB0F2F09DFB53FD039672AD9 /* KeyboardTextEditingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyboardTextEditingTests.swift; sourceTree = "<group>"; };
+		E53B44D5814D0669C8F5C3F3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		ECAD2B010C9A031F57808AC5 /* BonkilingoBar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BonkilingoBar.swift; sourceTree = "<group>"; };
 		ED455D159122A9920F4EF4A2 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -84,6 +135,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C77E2310AD2E612F31BC2A36 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E3C41CADF0A2DE125F6D089 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -91,8 +150,17 @@
 			isa = PBXGroup;
 			children = (
 				331C807B294A618700263BE5 /* RunnerTests.swift */,
+				DB0F2F09DFB53FD039672AD9 /* KeyboardTextEditingTests.swift */,
 			);
 			path = RunnerTests;
+			sourceTree = "<group>";
+		};
+		5F611EE36D0812B168BD9875 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				E53B44D5814D0669C8F5C3F3 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		9740EEB11CF90186004384FC /* Flutter */ = {
@@ -115,6 +183,7 @@
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				E97B3A7D58F0F45741E32814 /* Pods */,
 				E5519FE7B97668857B83CAA5 /* Frameworks */,
+				DB3A9A6C87AA6F2488E9241C /* BonkilingoKeyboard */,
 			);
 			sourceTree = "<group>";
 		};
@@ -123,6 +192,7 @@
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
+				6A9830DBBCBEC0977E87DF8F /* BonkilingoKeyboard.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -138,8 +208,30 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				A41534DB9FE414A1BCCEDAAF /* PrivacyInfo.xcprivacy */,
 			);
 			path = Runner;
+			sourceTree = "<group>";
+		};
+		DB3A9A6C87AA6F2488E9241C /* BonkilingoKeyboard */ = {
+			isa = PBXGroup;
+			children = (
+				0B0B01397D43AA71AD92338E /* KeyboardViewController.swift */,
+				59334DF1069DB21721A032F7 /* KeyboardView.swift */,
+				1EBDF8F14D076D9D0C7BE839 /* KeyButton.swift */,
+				1DE0CF81A201CED676296E7B /* KeyboardLayout.swift */,
+				ECAD2B010C9A031F57808AC5 /* BonkilingoBar.swift */,
+				A19461950AB9EA6115F025FB /* Settings.swift */,
+				78C704042B13C88F43C008E6 /* PrivacyInfo.xcprivacy */,
+				C69231B43D59FEB204DC18A3 /* Info.plist */,
+				2178B0439C1196897551EE79 /* Keyboard.xcconfig */,
+				3D75EE09F24339719176B967 /* TextEditing.swift */,
+				3B95F8756FB7A0BE6DA79B22 /* APIClient.swift */,
+				D44D688B75D64ED68C462508 /* CorrectionPanel.swift */,
+				D75B2D96EF1118E3CFB65531 /* KeyboardAuth.swift */,
+			);
+			name = BonkilingoKeyboard;
+			path = BonkilingoKeyboard;
 			sourceTree = "<group>";
 		};
 		E5519FE7B97668857B83CAA5 /* Frameworks */ = {
@@ -147,6 +239,7 @@
 			children = (
 				075DCE457E8970B092B32F38 /* Pods_Runner.framework */,
 				A1856A6B6F0CFB7A011AC910 /* Pods_RunnerTests.framework */,
+				5F611EE36D0812B168BD9875 /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -192,6 +285,7 @@
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
 				B519E13B34BA63B55EE85B8B /* [CP] Check Pods Manifest.lock */,
+				5B369F4C3FA6181D4B8A1BB9 /* Embed Foundation Extensions */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
@@ -203,11 +297,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				3A688318EDC48DA8DD3F4454 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		FE3956B5BFB7834007DC7913 /* BonkilingoKeyboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9EE46F40E966AA41FFA4A30F /* Build configuration list for PBXNativeTarget "BonkilingoKeyboard" */;
+			buildPhases = (
+				C00D726FE90010DFF3E174A0 /* Sources */,
+				C77E2310AD2E612F31BC2A36 /* Frameworks */,
+				3562A51C51850F517AAEE26B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BonkilingoKeyboard;
+			productName = BonkilingoKeyboard;
+			productReference = 6A9830DBBCBEC0977E87DF8F /* BonkilingoKeyboard.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -244,6 +356,7 @@
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
+				FE3956B5BFB7834007DC7913 /* BonkilingoKeyboard */,
 			);
 		};
 /* End PBXProject section */
@@ -256,6 +369,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3562A51C51850F517AAEE26B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				745AD46745CE3E6C26251D11 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EC1CF9000F007C117D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -264,6 +385,7 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				C9125B0F64150889FA47D68E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,6 +492,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */,
+				70BD428C1482E0111CF6A5D6 /* TextEditing.swift in Sources */,
+				4120633BD75A8A41BC1BF54E /* KeyboardTextEditingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,6 +506,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C00D726FE90010DFF3E174A0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				76047E4C2FCB75B3EFED88F3 /* KeyboardViewController.swift in Sources */,
+				25B2E1F77ED2BD17517FFCB1 /* KeyboardView.swift in Sources */,
+				07556D6002612009249738C5 /* KeyButton.swift in Sources */,
+				DEFFD3BC73B2F38CCBD8C571 /* KeyboardLayout.swift in Sources */,
+				9B74D0B65F75BFF34337DFC4 /* BonkilingoBar.swift in Sources */,
+				F5A8566AC5E45165F95614A5 /* Settings.swift in Sources */,
+				B252E55D3C6D98ADFE034092 /* TextEditing.swift in Sources */,
+				373F2E00F9B49E9DEBEF8D14 /* APIClient.swift in Sources */,
+				37FF9A65673BC7DC1289EF13 /* CorrectionPanel.swift in Sources */,
+				5C0302D91114A922FDD2768C /* KeyboardAuth.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -389,6 +530,12 @@
 			isa = PBXTargetDependency;
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
+		};
+		3A688318EDC48DA8DD3F4454 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = BonkilingoKeyboard;
+			target = FE3956B5BFB7834007DC7913 /* BonkilingoKeyboard */;
+			targetProxy = 456173C614D1E8A09C9F5005 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -455,7 +602,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -470,15 +617,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = H9DTLRUW87;
+				DEVELOPMENT_TEAM = 375CZNUJVV;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -495,7 +643,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.app.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -513,7 +661,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.app.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -529,12 +677,73 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.app.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
 			name = Profile;
+		};
+		7F32C986CEC19E372AFAB8CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2178B0439C1196897551EE79 /* Keyboard.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BonkilingoKeyboard/BonkilingoKeyboard.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 375CZNUJVV;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BonkilingoKeyboard/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios.keyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8A3C685573A6C2010BC340FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2178B0439C1196897551EE79 /* Keyboard.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BonkilingoKeyboard/BonkilingoKeyboard.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 375CZNUJVV;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BonkilingoKeyboard/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios.keyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -585,7 +794,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -636,7 +845,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -653,15 +862,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = H9DTLRUW87;
+				DEVELOPMENT_TEAM = 375CZNUJVV;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -676,21 +886,53 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = H9DTLRUW87;
+				DEVELOPMENT_TEAM = 375CZNUJVV;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
+		};
+		C299126E352A8B85FA1CA5D0 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2178B0439C1196897551EE79 /* Keyboard.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = BonkilingoKeyboard/BonkilingoKeyboard.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 375CZNUJVV;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = BonkilingoKeyboard/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bonkilingo.ios.keyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
 		};
 /* End XCBuildConfiguration section */
 
@@ -721,6 +963,16 @@
 				97C147061CF9000F007C117D /* Debug */,
 				97C147071CF9000F007C117D /* Release */,
 				249021D4217E4FDB00AE95B9 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9EE46F40E966AA41FFA4A30F /* Build configuration list for PBXNativeTarget "BonkilingoKeyboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A3C685573A6C2010BC340FC /* Release */,
+				7F32C986CEC19E372AFAB8CE /* Debug */,
+				C299126E352A8B85FA1CA5D0 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

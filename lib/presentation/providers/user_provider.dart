@@ -65,11 +65,15 @@ class UserProfileStateNotifier extends StateNotifier<UserProfileState> {
 
     try {
       final profile = await _userRepository.getUserProfile(_userId);
+      // The provider rebuilds (and disposes this notifier) when the signed-in
+      // user changes, so a request can finish after dispose.
+      if (!mounted) return;
       state = state.copyWith(
         profile: profile,
         isLoading: false,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -84,11 +88,13 @@ class UserProfileStateNotifier extends StateNotifier<UserProfileState> {
 
     try {
       await _userRepository.updateUserProfile(_userId, profile);
+      if (!mounted) return;
       state = state.copyWith(
         profile: profile,
         isLoading: false,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -101,7 +107,8 @@ class UserProfileStateNotifier extends StateNotifier<UserProfileState> {
 
     try {
       await _userRepository.updateUserFields(_userId, updates);
-      
+      if (!mounted) return;
+
       // Update local state
       if (state.profile != null) {
         final updatedProfile = UserProfileModel.fromJson({
@@ -111,6 +118,7 @@ class UserProfileStateNotifier extends StateNotifier<UserProfileState> {
         state = state.copyWith(profile: updatedProfile);
       }
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(error: e.toString());
     }
   }

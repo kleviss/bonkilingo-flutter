@@ -1,14 +1,18 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons;
+import 'package:flutter/material.dart' show Icons, ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/theme_helper.dart';
+import '../../../core/theme/brand_colors.dart';
+import '../../widgets/brand/brand_page.dart';
+import '../../widgets/brand/pill_button.dart';
+import '../../widgets/brand/quiz_widgets.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/rewards_provider.dart';
 import '../../../data/models/lesson_progress_model.dart';
 import '../../../data/models/chat_session_model.dart';
 import '../../providers/providers.dart';
+
+const _purple = Color(0xFFB07CF5);
 
 class SentenceConstructionScreen extends ConsumerStatefulWidget {
   const SentenceConstructionScreen({super.key});
@@ -28,6 +32,16 @@ class _SentenceConstructionScreenState
   List<SentenceQuestion> _questions = [];
   bool _isLoading = true;
   LessonProgressModel? _progress;
+
+  /// Whether the questions came from the user's corrections, not samples.
+  bool _fromCorrections = false;
+
+  /// Whether the current answer was checked and its feedback is showing.
+  bool _answered = false;
+  bool _lastAnswerCorrect = false;
+
+  /// Set once the last answer is in, so the final tap can't run twice.
+  bool _completing = false;
 
   @override
   void initState() {
@@ -50,6 +64,7 @@ class _SentenceConstructionScreenState
         _questions = _generateSampleQuestions();
       } else {
         _questions = _generateQuestionsFromWords(words);
+        _fromCorrections = true;
       }
 
       // Load progress
@@ -149,34 +164,18 @@ class _SentenceConstructionScreenState
       setState(() => _score++);
     }
 
-    // Show feedback
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text(isCorrect ? 'Correct!' : 'Try Again'),
-        content: Text(
-          isCorrect
-              ? 'Great job! You constructed the sentence correctly.'
-              : 'The correct sentence is: "${question.targetSentence}"',
-        ),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () {
-              Navigator.of(context).pop();
-              _nextQuestion();
-            },
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
+    // Show feedback inline; Continue moves on via _nextQuestion.
+    setState(() {
+      _answered = true;
+      _lastAnswerCorrect = isCorrect;
+    });
   }
 
   void _nextQuestion() {
     if (_currentQuestionIndex < _questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
+        _answered = false;
         _loadQuestion();
       });
     } else {
@@ -214,307 +213,129 @@ class _SentenceConstructionScreenState
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
-    final theme = ThemeHelper(themeMode);
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final p = BrandPalette(isDark);
 
+    final Widget body;
     if (_isLoading) {
-      return CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('Sentence Construction'),
-        ),
-        child: const Center(child: CupertinoActivityIndicator()),
+      body = const Center(child: CupertinoActivityIndicator());
+    } else if (_questions.isEmpty) {
+      body = QuizEmptyState(
+        palette: p,
+        icon: Icons.view_agenda_outlined,
+        color: _purple,
+        title: 'No words yet',
+        message:
+            'Complete some text corrections to generate sentence building exercises.',
       );
+    } else {
+      body = _showResult ? _buildResultView(p) : _buildExerciseView(p);
     }
 
-    if (_questions.isEmpty) {
-      return CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('Sentence Construction'),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.construction,
-                    size: 64, color: AppColors.textSecondary),
-                const SizedBox(height: 16),
-                Text(
-                  'No words available',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Complete some text corrections to generate sentence construction exercises.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: theme.textSecondary),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Sentence Construction'),
-      ),
-      child: SafeArea(
-        child:
-            _showResult ? _buildResultView(theme) : _buildExerciseView(theme),
-      ),
-    );
+    return BrandPage(isDark: isDark, title: 'Sentence building', child: body);
   }
 
-  Widget _buildExerciseView(ThemeHelper theme) {
+  Widget _buildExerciseView(BrandPalette p) {
     final question = _questions[_currentQuestionIndex];
-    final progress = (_currentQuestionIndex + 1) / _questions.length;
+    final isLast = _currentQuestionIndex == _questions.length - 1;
+    final isCorrect = _answered && _lastAnswerCorrect;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Progress indicator
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: theme.border,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: FractionallySizedBox(
-                      widthFactor: progress,
+    return QuizLayout(
+      feedback: _answered
+          ? QuizFeedbackCard(
+              palette: p,
+              correct: isCorrect,
+              message: isCorrect
+                  ? 'Great job! You built the sentence correctly.'
+                  : 'The correct sentence is "${question.targetSentence}".',
+            )
+          : null,
+      action: _answered
+          ? PillButton(
+              label: isLast ? 'Finish' : 'Continue',
+              loading: _completing,
+              onPressed: () {
+                if (isLast) setState(() => _completing = true);
+                _nextQuestion();
+              },
+            )
+          : PillButton(
+              label: 'Check',
+              onPressed: _selectedWords.isEmpty ? null : _checkAnswer,
+            ),
+      children: [
+        QuizProgressBar(
+          palette: p,
+          current: _currentQuestionIndex + 1,
+          total: _questions.length,
+        ),
+        const SizedBox(height: 20),
+        QuizQuestionCard(
+          palette: p,
+          fromCorrections: _fromCorrections,
+          prompt: 'Construct a sentence using these words',
+          child: QuizSunkenBox(
+            palette: p,
+            borderColor: _answered
+                ? (isCorrect ? BrandPalette.green : BrandPalette.red)
+                : null,
+            padding: const EdgeInsets.all(12),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 40),
+              child: _selectedWords.isEmpty
+                  ? Align(
                       alignment: Alignment.centerLeft,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: theme.primary,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                      child: Text(
+                        'Tap the words below to build your sentence',
+                        style: TextStyle(fontSize: 15, color: p.muted),
                       ),
+                    )
+                  : Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final word in _selectedWords)
+                          WordChip(
+                            palette: p,
+                            word: word,
+                            inAnswer: true,
+                            onTap: _answered ? null : () => _removeWord(word),
+                          ),
+                      ],
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '${_currentQuestionIndex + 1}/${_questions.length}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: theme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-
-          // Instructions
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.cardBackground,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Construct a sentence using these words:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: theme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: question.words
-                      .map((word) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: theme.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                  color: theme.primary.withOpacity(0.3)),
-                            ),
-                            child: Text(
-                              word,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: theme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-              ],
             ),
           ),
-          const SizedBox(height: 24),
-
-          // Selected words
-          if (_selectedWords.isNotEmpty) ...[
-            Text(
-              'Your sentence:',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: theme.textSecondary,
+        ),
+        const SizedBox(height: 20),
+        Wrap(
+          spacing: 8,
+          runSpacing: 10,
+          children: [
+            for (final word in _availableWords)
+              WordChip(
+                palette: p,
+                word: word,
+                onTap: _answered ? null : () => _selectWord(word),
               ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.cardBackground,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: theme.border),
-              ),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _selectedWords
-                    .map((word) => GestureDetector(
-                          onTap: () => _removeWord(word),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: theme.primary,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  word,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: CupertinoColors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                const Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: CupertinoColors.white,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ))
-                    .toList(),
-              ),
-            ),
-            const SizedBox(height: 24),
           ],
-
-          // Available words
-          Text(
-            'Available words:',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: theme.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _availableWords
-                .map((word) => GestureDetector(
-                      onTap: () => _selectWord(word),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: theme.cardBackground,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: theme.border),
-                        ),
-                        child: Text(
-                          word,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ))
-                .toList(),
-          ),
-          const SizedBox(height: 24),
-
-          // Check button
-          CupertinoButton.filled(
-            onPressed: _selectedWords.isEmpty ? null : _checkAnswer,
-            child: const Text('Check Answer'),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildResultView(ThemeHelper theme) {
-    final percentage = (_score / _questions.length * 100).round();
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              percentage >= 70
-                  ? Icons.check_circle
-                  : Icons.sentiment_dissatisfied,
-              size: 80,
-              color: percentage >= 70
-                  ? CupertinoColors.systemGreen
-                  : theme.primary,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Exercise Complete!',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: theme.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Score: $_score/${_questions.length} ($percentage%)',
-              style: TextStyle(
-                fontSize: 20,
-                color: theme.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 32),
-            CupertinoButton.filled(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
-            ),
-          ],
-        ),
+  Widget _buildResultView(BrandPalette p) {
+    return QuizLayout(
+      action: PillButton(
+        label: 'Done',
+        onPressed: () => Navigator.of(context).pop(),
       ),
+      children: [
+        QuizResultCard(
+          title: 'Exercise complete',
+          score: _score,
+          total: _questions.length,
+        ),
+      ],
     );
   }
 }
