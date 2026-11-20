@@ -32,7 +32,7 @@ These are needed for TestFlight anyway.
 ## Phase 1: Installable keyboard that types (3–5 days)
 
 - [x] Add `BonkilingoKeyboard` extension target (Swift/UIKit) to `ios/Runner.xcodeproj`,
-      bundle ID `com.bonkilingo.app.keyboard`; embed phase before "Run Script" per Flutter docs; no pods.
+      bundle ID `com.bonkilingo.ios.keyboard`; embed phase before "Run Script" per Flutter docs; no pods.
       Version comes from Flutter's `Generated.xcconfig`, so it always matches the app.
 - [x] Layouts: German QWERTZ (ü ö ä, default) and English QWERTY, toggled with the DE/EN button;
       shift (double tap = caps lock), numbers and symbols pages, delete with repeat (words after a while),
@@ -78,8 +78,8 @@ These are needed for TestFlight anyway.
 - [x] Backend (bonkilingo-backend `klv-/keyboard-tokens`, deployed to production): `keyboard_tokens`
       table (SHA-256 hash only, `supabase/keyboard_tokens.sql`), `POST/DELETE /api/keyboard/token`,
       `kb_` tokens accepted on the AI endpoints with the user's own limits; revoked/unknown → 401.
-- [x] Entitlements: Keychain group `H9DTLRUW87.com.bonkilingo.shared` and App Group
-      `group.com.bonkilingo.app` on both targets; registered by Xcode automatic signing on the
+- [x] Entitlements: Keychain group `375CZNUJVV.com.bonkilingo.shared` and App Group
+      `group.com.bonkilingo.shared` on both targets; registered by Xcode automatic signing on the
       first device build.
 - [x] Flutter: `KeyboardAuthService` fetches the token after sign-in, stores it with
       `flutter_secure_storage` (`groupId`), revokes it on sign-out and on account switch.

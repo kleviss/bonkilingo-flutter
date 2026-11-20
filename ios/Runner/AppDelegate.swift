@@ -27,7 +27,7 @@ import UIKit
       binaryMessenger: registrar.messenger()
     )
     channel.setMethodCallHandler { call, result in
-      guard let defaults = UserDefaults(suiteName: "group.com.bonkilingo.app") else {
+      guard let defaults = UserDefaults(suiteName: "group.com.bonkilingo.shared") else {
         result(FlutterError(code: "unavailable", message: "App Group defaults unavailable", details: nil))
         return
       }

@@ -14,8 +14,8 @@ import '../data_sources/local/keyboard_settings.dart';
 /// Sign-out deletes it and revokes it on the server.
 class KeyboardAuthService {
   /// Shared with the keyboard; must match both .entitlements files and
-  /// KeyboardAuth.swift. H9DTLRUW87 is the Apple team ID.
-  static const keychainGroup = 'H9DTLRUW87.com.bonkilingo.shared';
+  /// KeyboardAuth.swift. 375CZNUJVV is the Apple team ID (Qendresa Qytetare).
+  static const keychainGroup = '375CZNUJVV.com.bonkilingo.shared';
   static const tokenKey = 'keyboard_token';
   static const tokenUserKey = 'keyboard_token_user';
 

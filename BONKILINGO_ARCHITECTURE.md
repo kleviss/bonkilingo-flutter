@@ -14,7 +14,7 @@ Three repos share one Supabase project.
 
 | Repo | Stack | Role |
 |---|---|---|
-| `bonkilingo-flutter` | Flutter 3.35.7, Riverpod, Dio, supabase_flutter 2.10.3 | iOS/Android app (bundle `com.bonkilingo.app`, team `H9DTLRUW87`) |
+| `bonkilingo-flutter` | Flutter 3.35.7, Riverpod, Dio, supabase_flutter 2.10.3 | iOS/Android app (bundle `com.bonkilingo.ios` (iOS), team `375CZNUJVV` (Qendresa Qytetare)) |
 | `bonkilingo-backend` | Node/Express (`index.js`, `ai.js`, `rewards-routes.js`) | AI endpoints + BONK rewards (Solana). Runs locally on :3001; Vercel-ready (`export default app` when `VERCEL` is set) |
 | `bonkilingua` | Next.js | Web app. **Has its own** `/api/correct`, `/api/chat`, `/api/detect-language` routes calling OpenAI directly |
 
@@ -81,7 +81,7 @@ flowchart LR
 | Partial selection? | `selectedText` is readable; `insertText` over a selection normally replaces it, but it's host-defined. | Assumption, test per app |
 | Network requests? | Only with **Full Access** (`RequestsOpenAccess = YES` + user toggles "Allow Full Access" in Settings). Check `hasFullAccess` at runtime. | Verified ([Apple](https://developer.apple.com/documentation/uikit/configuring-open-access-for-a-custom-keyboard)) |
 | Without Full Access? | No network, no writes to the shared App Group container (reads OK), no pasteboard. The keyboard must still type (guideline 4.4.1). | Verified |
-| Share login with the app? | Yes, via a shared Keychain access group (`H9DTLRUW87.com.bonkilingo.shared`) or App Group. Both targets need the entitlement. | Verified ([Apple](https://developer.apple.com/documentation/security/sharing-access-to-keychain-items-among-a-collection-of-apps)) |
+| Share login with the app? | Yes, via a shared Keychain access group (`375CZNUJVV.com.bonkilingo.shared`) or App Group. Both targets need the entitlement. | Verified ([Apple](https://developer.apple.com/documentation/security/sharing-access-to-keychain-items-among-a-collection-of-apps)) |
 | Where is it unavailable? | Secure (password) fields, phone-pad fields, and any app that rejects third-party keyboards via `application(_:shouldAllowExtensionPointIdentifier:)` (common in banking apps). WhatsApp/iMessage/Gmail/Instagram are expected to allow it. | Mechanism verified; per-app behavior is an assumption |
 | Memory? | No published limit. Plan for ≤ 40–50 MB. **No Flutter engine in the keyboard** (Flutter docs advise ≥100 MB for Flutter UI in extensions). Measured: the Phase 1 keyboard uses **7.1 MiB** physical footprint (iPhone 14 Pro, iOS 26.5, release build). | Limit: assumption + [Flutter docs](https://docs.flutter.dev/platform-integration/ios/app-extensions). Usage: measured |
 | Open the Bonkilingo app from the keyboard? | Not supported for keyboards (`NSExtensionContext.open` is Today/iMessage only), and 4.4.1 forbids launching apps other than Settings. Show "Open Bonkilingo to sign in" text instead. | Verified |
@@ -114,8 +114,8 @@ flowchart TB
       TC[TextCapture<br/>selection / context window]
       AC[APIClient]
     end
-    KC[("Shared Keychain group<br/>H9DTLRUW87.com.bonkilingo.shared<br/>keyboard token")]
-    AG[("App Group<br/>group.com.bonkilingo.app<br/>target language, consent flag")]
+    KC[("Shared Keychain group<br/>375CZNUJVV.com.bonkilingo.shared<br/>keyboard token")]
+    AG[("App Group<br/>group.com.bonkilingo.shared<br/>target language, consent flag")]
     FA -->|writes| KC
     FA -->|writes| AG
     KC -->|reads| AC
@@ -131,7 +131,7 @@ flowchart TB
 ### 3.1 Integration with the Flutter project
 
 - Add an Xcode target **`BonkilingoKeyboard`** (Custom Keyboard Extension, Swift/UIKit) to
-  `ios/Runner.xcodeproj`, bundle ID `com.bonkilingo.app.keyboard`, same team, same deployment target.
+  `ios/Runner.xcodeproj`, bundle ID `com.bonkilingo.ios.keyboard`, same team, same deployment target.
 - Follow the [Flutter app-extension guide](https://docs.flutter.dev/platform-integration/ios/app-extensions):
   move "Embed Foundation Extensions" before the script phases (avoids the known
   `Thin Binary` build cycle), run `flutter build ios --config-only`.
@@ -145,7 +145,7 @@ The keyboard must not refresh the Supabase session (F6). Proposal:
 1. Flutter, after sign-in, calls `POST /api/keyboard/token` with the user's Supabase JWT.
 2. Backend generates a random opaque token `kb_…`, stores only its hash in a new table
    `keyboard_tokens (id, user_id, token_hash, created_at, last_used_at, revoked_at)`, returns it once.
-3. Flutter writes it with `flutter_secure_storage` using `IOSOptions(groupId: 'H9DTLRUW87.com.bonkilingo.shared', accessibility: first_unlock)`.
+3. Flutter writes it with `flutter_secure_storage` using `IOSOptions(groupId: '375CZNUJVV.com.bonkilingo.shared', accessibility: first_unlock)`.
 4. Keyboard reads it from the Keychain (same service name `flutter_secure_storage_service`) and
    sends `Authorization: Bearer kb_…`.
 5. Sign-out in the app revokes the token (`DELETE /api/keyboard/token`) and deletes the Keychain item.

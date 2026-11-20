@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 /// Settings the Bonkilingo keyboard extension reads.
 ///
-/// Stored natively in the App Group defaults (`group.com.bonkilingo.app`, see
+/// Stored natively in the App Group defaults (`group.com.bonkilingo.shared`, see
 /// `ios/Runner/AppDelegate.swift`) because the keyboard runs in its own
 /// process and can't read the app's SharedPreferences.
 class KeyboardSettings {

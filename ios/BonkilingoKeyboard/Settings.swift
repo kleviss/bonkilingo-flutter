@@ -8,7 +8,7 @@ import Foundation
 /// Both targets carry the App Group entitlement (Runner.entitlements and
 /// BonkilingoKeyboard.entitlements), so this suite is shared between them.
 enum SharedSettings {
-  static let appGroup = "group.com.bonkilingo.app"
+  static let appGroup = "group.com.bonkilingo.shared"
   static let correctionsEnabledKey = "keyboard.correctionsEnabled"
   static let saveToHistoryKey = "keyboard.saveToHistory"
 

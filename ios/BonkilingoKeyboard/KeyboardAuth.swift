@@ -10,8 +10,8 @@ import Security
 /// account, in the shared access group.
 enum KeyboardAuth {
   /// Must match both .entitlements files and KeyboardAuthService.keychainGroup.
-  /// H9DTLRUW87 is the Apple team ID.
-  static let accessGroup = "H9DTLRUW87.com.bonkilingo.shared"
+  /// 375CZNUJVV is the Apple team ID (Qendresa Qytetare).
+  static let accessGroup = "375CZNUJVV.com.bonkilingo.shared"
   static let service = "flutter_secure_storage_service"
   static let tokenAccount = "keyboard_token"
 
