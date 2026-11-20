@@ -1,7 +1,7 @@
 class AppConstants {
   // App Info
   static const String appName = 'Bonkilingo';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.0.10'; // keep in sync with pubspec.yaml
 
   // API Endpoints (Points to standalone backend)
   static const String apiBaseUrl = String.fromEnvironment(

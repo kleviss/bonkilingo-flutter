@@ -28,6 +28,7 @@
 		9B74D0B65F75BFF34337DFC4 /* BonkilingoBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD2B010C9A031F57808AC5 /* BonkilingoBar.swift */; };
 		B252E55D3C6D98ADFE034092 /* TextEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D75EE09F24339719176B967 /* TextEditing.swift */; };
 		C34A2C4CCE33BF583F124898 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1856A6B6F0CFB7A011AC910 /* Pods_RunnerTests.framework */; };
+		C9125B0F64150889FA47D68E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A41534DB9FE414A1BCCEDAAF /* PrivacyInfo.xcprivacy */; };
 		D81E9B4B0D23D696688C68B3 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 075DCE457E8970B092B32F38 /* Pods_Runner.framework */; };
 		DEFFD3BC73B2F38CCBD8C571 /* KeyboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE0CF81A201CED676296E7B /* KeyboardLayout.swift */; };
 		F5A8566AC5E45165F95614A5 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A19461950AB9EA6115F025FB /* Settings.swift */; };
@@ -106,6 +107,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1856A6B6F0CFB7A011AC910 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A19461950AB9EA6115F025FB /* Settings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		A41534DB9FE414A1BCCEDAAF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A5ADC594D06F51896DD43321 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C69231B43D59FEB204DC18A3 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D44D688B75D64ED68C462508 /* CorrectionPanel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CorrectionPanel.swift; sourceTree = "<group>"; };
@@ -206,6 +208,7 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				A41534DB9FE414A1BCCEDAAF /* PrivacyInfo.xcprivacy */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -382,6 +385,7 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				C9125B0F64150889FA47D68E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
