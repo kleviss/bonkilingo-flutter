@@ -8,6 +8,7 @@ import 'presentation/providers/providers.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/main_navigation.dart';
 import 'presentation/screens/onboarding/onboarding_screen.dart';
+import 'presentation/widgets/keyboard_auth_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +53,11 @@ class BonkilingoApp extends ConsumerWidget {
       theme: themeMode == ThemeMode.dark 
           ? AppThemes.darkTheme 
           : AppThemes.lightTheme,
-      home: showOnboarding ? const OnboardingScreen() : const MainNavigation(),
+      // Keeps the iOS keyboard signed in as the same user (also during
+      // onboarding, where people can sign in).
+      home: KeyboardAuthObserver(
+        child: showOnboarding ? const OnboardingScreen() : const MainNavigation(),
+      ),
       localizationsDelegates: const [
         DefaultCupertinoLocalizations.delegate,
       ],

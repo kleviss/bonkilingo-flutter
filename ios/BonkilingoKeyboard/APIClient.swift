@@ -30,11 +30,14 @@ final class APIClient {
     return APIClient(baseURL: url)
   }
 
-  func correct(_ text: String) async throws -> String {
+  /// `token`: the keyboard token from the app (KeyboardAuth); without one the
+  /// request is anonymous and gets the smaller per-IP limit.
+  func correct(_ text: String, token: String?) async throws -> String {
     var request = URLRequest(url: baseURL.appendingPathComponent("api/correct"))
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue("application/json", forHTTPHeaderField: "Accept")
+    if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
     // "auto": keep the text's own language (the server never translates).
     request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text, "language": "auto"])
 

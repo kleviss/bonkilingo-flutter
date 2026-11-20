@@ -23,6 +23,8 @@ final class KeyboardViewController: UIInputViewController {
   private var appliedDark: Bool?
   /// The app's Correct on/off switch, read when the keyboard appears.
   private var correctionsEnabled = true
+  /// Whether the app left a keyboard token (KeyboardAuth), read when the keyboard appears.
+  private var signedIn = false
   private var showsContextReadout = KeyboardPreferences.showsContextReadout
 
   private var deleteTimer: Timer?
@@ -102,6 +104,7 @@ final class KeyboardViewController: UIInputViewController {
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     correctionsEnabled = SharedSettings.correctionsEnabled
+    signedIn = KeyboardAuth.token() != nil
     applyKeyboardType()
     refresh()
   }
@@ -339,6 +342,9 @@ final class KeyboardViewController: UIInputViewController {
     } else if api == nil {
       bar.setStatus("Correct isn't configured in this build")
       bar.setCorrect(visible: true, enabled: false)
+    } else if !signedIn {
+      bar.setStatus("Sign in to the Bonkilingo app for more corrections")
+      bar.setCorrect(visible: true, enabled: panel.isHidden)
     } else {
       bar.setStatus("Select text, or tap Correct for the whole message")
       bar.setCorrect(visible: true, enabled: panel.isHidden)
@@ -357,10 +363,13 @@ final class KeyboardViewController: UIInputViewController {
       return
     }
     showPanel(.loading)
+    // Read at tap time: the app may have signed in or out since the keyboard appeared.
+    let token = KeyboardAuth.token()
+    signedIn = token != nil
 
     correctionTask = Task { @MainActor [weak self] in
       do {
-        let corrected = try await api.correct(captured.core)
+        let corrected = try await api.correct(captured.core, token: token)
         guard let self, !Task.isCancelled else { return }
         let restored = captured.restoringWhitespace(corrected)
         if restored == captured.full {
