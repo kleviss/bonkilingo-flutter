@@ -75,13 +75,24 @@ These are needed for TestFlight anyway.
 
 ## Phase 3: Sharing sign-in between app and keyboard (2–3 days)
 
-- [ ] Backend: `keyboard_tokens` table (hashed), `POST/DELETE /api/keyboard/token`, accept `kb_` tokens on `/api/correct`.
-- [ ] Entitlements: Keychain group `H9DTLRUW87.com.bonkilingo.shared` and App Group
-      `group.com.bonkilingo.app` on both targets; register them in the Developer portal.
-- [ ] Flutter: fetch the token after sign-in, store it with `flutter_secure_storage` (`groupId`),
-      revoke it on sign-out; write the target language to the App Group.
-- [ ] Keyboard: read the token and language; show "Open Bonkilingo to sign in" when missing.
+- [x] Backend (bonkilingo-backend `klv-/keyboard-tokens`, deployed to production): `keyboard_tokens`
+      table (SHA-256 hash only, `supabase/keyboard_tokens.sql`), `POST/DELETE /api/keyboard/token`,
+      `kb_` tokens accepted on the AI endpoints with the user's own limits; revoked/unknown → 401.
+- [x] Entitlements: Keychain group `H9DTLRUW87.com.bonkilingo.shared` and App Group
+      `group.com.bonkilingo.app` on both targets; registered by Xcode automatic signing on the
+      first device build.
+- [x] Flutter: `KeyboardAuthService` fetches the token after sign-in, stores it with
+      `flutter_secure_storage` (`groupId`), revokes it on sign-out and on account switch.
+- [x] Keyboard: reads the token (`KeyboardAuth.swift`) and sends it with Correct; says "Sign in to the
+      Bonkilingo app for more corrections" when there is none (still works anonymously).
+- [ ] Write the target language to the App Group (the keyboard sends "auto" for now).
 - **Done when:** signing in or out in the app is reflected in the keyboard with no extra steps, and a revoked token gets a 401.
+  Verified 2026-11-20 (iPhone 14 Pro + simulator, Supabase + Vercel logs): sign-up issued a token,
+  sign-out revoked it, a new sign-in issued another, and a keyboard Correct ran as that user
+  (token `last_used_at` = the request time). Unknown `kb_` token → 401 checked against production.
+- Found along the way: the Supabase project had none of the app's tables; applied
+  `docs/supabase/app_schema_setup.sql`. Email confirmation is **off** because the sender domain
+  `bonkilingo.app` has no DNS; turn it back on once a domain is verified in Resend.
 
 ## Phase 4: Privacy, setup flow, App Review (1–2 days)
 
