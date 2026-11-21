@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Needed in release builds: the app calls the Bonkilingo backend and Supabase.
+         (Flutter only adds it to the debug and profile manifests.) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="bonkilingo"
+        android:label="Bonkilingo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
