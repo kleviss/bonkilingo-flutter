@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' show Icons, ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/brand_colors.dart';
+import '../../../data/data_sources/local/keyboard_settings.dart';
 import '../../providers/keyboard_settings_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/brand/brand_page.dart';
@@ -11,17 +12,28 @@ import '../../widgets/brand/pill_button.dart';
 
 const _blue = Color(0xFF4F8EF7);
 
-/// Walks the user through adding the Bonkilingo keyboard in iPhone Settings.
+/// Walks the user through adding the Bonkilingo keyboard.
 ///
-/// iOS doesn't let an app add, remove or grant Full Access to a keyboard; only
-/// the user can, in Settings. So this screen explains the steps, opens the
-/// app's own Settings page (which lists "Keyboards" once the extension
-/// exists), and offers the one switch the app does control: whether the
+/// Neither platform lets an app turn a keyboard on by itself; only the user
+/// can, in system settings. So this screen explains the steps and opens the
+/// right settings page. iOS: the app's own Settings page (which lists
+/// "Keyboards" once the extension exists), then Allow Full Access. Android:
+/// the system keyboard list, then the keyboard picker; Android also tells us
+/// whether the keyboard is on, so the screen shows that.
+///
+/// It also offers the one switch the app does control: whether the
 /// keyboard's Correct button is on.
-class KeyboardSetupScreen extends ConsumerWidget {
+class KeyboardSetupScreen extends ConsumerStatefulWidget {
   const KeyboardSetupScreen({super.key});
 
-  static const _steps = <(String, String?)>[
+  @override
+  ConsumerState<KeyboardSetupScreen> createState() =>
+      _KeyboardSetupScreenState();
+}
+
+class _KeyboardSetupScreenState extends ConsumerState<KeyboardSetupScreen>
+    with WidgetsBindingObserver {
+  static const _iosSteps = <(String, String?)>[
     ('Tap "Open iPhone Settings" below.', null),
     ('Tap Keyboards.', null),
     ('Turn on Bonkilingo.', null),
@@ -35,11 +47,61 @@ class KeyboardSetupScreen extends ConsumerWidget {
     ),
   ];
 
+  static const _androidSteps = <(String, String?)>[
+    ('Tap "Open keyboard settings" below.', null),
+    (
+      'Turn on Bonkilingo and confirm.',
+      'Android warns about every keyboard that isn\'t from Google. '
+          'Bonkilingo only sends text when you tap Correct.',
+    ),
+    (
+      'Come back here and tap "Switch to Bonkilingo".',
+      'Later, switch keyboards with the keyboard icon at the bottom of the '
+          'screen while typing, or by holding the 🌐 key.',
+    ),
+  ];
+
+  /// Android only: whether the keyboard is on and in use. Null while loading
+  /// and on iOS.
+  KeyboardStatus? _status;
+
+  bool get _isAndroid => KeyboardSettings.isAndroid;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refreshStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Coming back from system settings or the keyboard picker.
+    if (state == AppLifecycleState.resumed) _refreshStatus();
+  }
+
+  Future<void> _refreshStatus() async {
+    if (!_isAndroid) return;
+    try {
+      final status = await ref.read(keyboardSettingsProvider).getStatus();
+      if (mounted) setState(() => _status = status);
+    } catch (_) {
+      // Leave the steps as they are.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
     final p = BrandPalette(isDark);
     final correctionsEnabled = ref.watch(keyboardCorrectionsEnabledProvider);
+    final phone = _isAndroid ? 'phone' : 'iPhone';
 
     return BrandPage(
       isDark: isDark,
@@ -48,39 +110,58 @@ class KeyboardSetupScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         children: [
           Text(
-            'Correct your messages right where you write them, in WhatsApp, '
-            'iMessage, Gmail and other apps.',
+            _isAndroid
+                ? 'Correct your messages right where you write them, in '
+                    'WhatsApp, Gmail, Messages and other apps.'
+                : 'Correct your messages right where you write them, in '
+                    'WhatsApp, iMessage, Gmail and other apps.',
             style: TextStyle(fontSize: 16, height: 1.4, color: p.muted),
           ),
           const SizedBox(height: 24),
-          BrandSectionTitle('Add the keyboard', palette: p),
-          BrandCard(
-            palette: p,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var i = 0; i < _steps.length; i++)
-                  _Step(
-                    number: i + 1,
-                    text: _steps[i].$1,
-                    detail: _steps[i].$2,
-                    palette: p,
-                  ),
-              ],
+          if (_status?.enabled ?? false) ...[
+            _StatusCard(status: _status!, palette: p, isDark: isDark),
+            const SizedBox(height: 16),
+            if (!_status!.selected)
+              PillButton(
+                label: 'Switch to Bonkilingo',
+                onPressed: () =>
+                    ref.read(keyboardSettingsProvider).showKeyboardPicker(),
+              ),
+          ] else ...[
+            BrandSectionTitle('Add the keyboard', palette: p),
+            BrandCard(
+              palette: p,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final (i, step) in _steps.indexed)
+                    _Step(
+                      number: i + 1,
+                      text: step.$1,
+                      detail: step.$2,
+                      palette: p,
+                    ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          PillButton(
-            label: 'Open iPhone Settings',
-            onPressed: () => _openAppSettings(context),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            "Don't see Keyboards? Go to Settings › General › Keyboard › "
-            'Keyboards › Add New Keyboard, and choose Bonkilingo.',
-            style: TextStyle(fontSize: 13, height: 1.35, color: p.muted),
-          ),
+            const SizedBox(height: 16),
+            PillButton(
+              label: _isAndroid ? 'Open keyboard settings' : 'Open iPhone Settings',
+              onPressed: () => _isAndroid
+                  ? ref.read(keyboardSettingsProvider).openSystemKeyboardSettings()
+                  : _openAppSettings(context),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _isAndroid
+                  ? "Don't see Bonkilingo? Open Settings › System › Keyboard › "
+                      'On-screen keyboard (names vary by phone) and turn it on there.'
+                  : "Don't see Keyboards? Go to Settings › General › Keyboard › "
+                      'Keyboards › Add New Keyboard, and choose Bonkilingo.',
+              style: TextStyle(fontSize: 13, height: 1.35, color: p.muted),
+            ),
+          ],
           const SizedBox(height: 28),
           BrandCard(
             palette: p,
@@ -120,11 +201,11 @@ class KeyboardSetupScreen extends ConsumerWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
-                    'Your text only leaves your iPhone when you tap Correct. '
+                    'Your text only leaves your $phone when you tap Correct. '
                     "It's sent to Bonkilingo's server and to OpenAI to correct it. "
-                    'The keyboard never sees password fields.\n\n'
+                    '${_isAndroid ? 'The keyboard never sends password fields.' : 'The keyboard never sees password fields.'}\n\n'
                     'To remove the keyboard, turn off Bonkilingo in the same '
-                    'Keyboards screen.',
+                    '${_isAndroid ? 'keyboard settings' : 'Keyboards'} screen.',
                     style: TextStyle(fontSize: 14, height: 1.4, color: p.muted),
                   ),
                 ),
@@ -135,6 +216,8 @@ class KeyboardSetupScreen extends ConsumerWidget {
       ),
     );
   }
+
+  List<(String, String?)> get _steps => _isAndroid ? _androidSteps : _iosSteps;
 
   /// Opens this app's page in the Settings app. Once the keyboard extension
   /// is installed, iOS lists "Keyboards" there with the Bonkilingo and
@@ -232,6 +315,39 @@ class _Step extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Android: shows that the keyboard is on (and whether it is in use).
+class _StatusCard extends StatelessWidget {
+  final KeyboardStatus status;
+  final BrandPalette palette;
+  final bool isDark;
+
+  const _StatusCard({
+    required this.status,
+    required this.palette,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BrandCard(
+      palette: palette,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: BrandListRow(
+        palette: palette,
+        leading: BrandIconBadge(
+          icon: Icons.check_rounded,
+          color: BrandColors.leaf,
+          isDark: isDark,
+        ),
+        title: 'Bonkilingo keyboard is on',
+        subtitle: status.selected
+            ? 'It\'s your keyboard now. Tap Correct in any app.'
+            : 'Switch to it to start correcting.',
       ),
     );
   }

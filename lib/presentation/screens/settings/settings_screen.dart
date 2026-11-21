@@ -112,7 +112,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.keyboard_outlined,
                 color: BrandColors.tangerine,
                 title: 'Set up keyboard',
-                subtitle: 'Correct messages in WhatsApp, iMessage and more',
+                subtitle: KeyboardSettings.isAndroid
+                    ? 'Correct messages in WhatsApp, Gmail and more'
+                    : 'Correct messages in WhatsApp, iMessage and more',
                 onTap: () {
                   Navigator.of(context).push(
                     CupertinoPageRoute(

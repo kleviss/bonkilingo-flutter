@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bonkilingo/core/network/dio_client.dart';
+import 'package:bonkilingo/data/data_sources/local/keyboard_settings.dart';
 import 'package:bonkilingo/data/services/keyboard_auth_service.dart';
 
 /// Records requests instead of sending them.
@@ -95,6 +96,14 @@ class _FakeStorage extends FlutterSecureStorage {
   }
 }
 
+/// Records the tokens handed to the Android keyboard.
+class _FakeKeyboardSettings extends KeyboardSettings {
+  final tokens = <String?>[];
+
+  @override
+  Future<void> setKeyboardToken(String? token) async => tokens.add(token);
+}
+
 void main() {
   late _FakeDioClient dio;
   late _FakeStorage storage;
@@ -144,5 +153,38 @@ void main() {
   test('does nothing when signed out with no token', () async {
     await service.sync(userId: null);
     expect(dio.calls, isEmpty);
+  });
+
+  group('on Android', () {
+    late _FakeKeyboardSettings keyboard;
+
+    setUp(() {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      keyboard = _FakeKeyboardSettings();
+      service = KeyboardAuthService(
+        dio,
+        storage: storage,
+        keyboardSettings: keyboard,
+      );
+    });
+
+    test('hands the token to the keyboard after sign-in', () async {
+      await service.sync(userId: 'user-1');
+      expect(keyboard.tokens, ['kb_token1']);
+    });
+
+    test('hands it again while the same user stays signed in', () async {
+      await service.sync(userId: 'user-1');
+      await service.sync(userId: 'user-1');
+      expect(keyboard.tokens, ['kb_token1', 'kb_token1']);
+      expect(dio.calls, ['POST /api/keyboard/token']);
+    });
+
+    test('takes it away from the keyboard on sign-out', () async {
+      await service.sync(userId: 'user-1');
+      await service.sync(userId: null);
+      expect(keyboard.tokens, ['kb_token1', null]);
+      expect(dio.calls.last, 'DELETE /api/keyboard/token Bearer kb_token1');
+    });
   });
 }

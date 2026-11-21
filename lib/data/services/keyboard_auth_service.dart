@@ -10,7 +10,9 @@ import '../data_sources/local/keyboard_settings.dart';
 /// single-use, so two clients refreshing would sign each other out). Instead
 /// the app gets a keyboard token from the backend (POST /api/keyboard/token,
 /// bonkilingo-backend/keyboard-tokens.js) and stores it in a Keychain group
-/// the keyboard can read (ios/BonkilingoKeyboard/KeyboardAuth.swift).
+/// the keyboard can read (ios/BonkilingoKeyboard/KeyboardAuth.swift). On
+/// Android it also hands it to the keyboard, which lives in the app's own
+/// package (`KeyboardSettings.setKeyboardToken`).
 /// Sign-out deletes it and revokes it on the server.
 class KeyboardAuthService {
   /// Shared with the keyboard; must match both .entitlements files and
@@ -28,12 +30,15 @@ class KeyboardAuthService {
 
   final DioClient _dioClient;
   final FlutterSecureStorage _storage;
+  final KeyboardSettings _keyboardSettings;
   Future<void>? _running;
 
   KeyboardAuthService(
     this._dioClient, {
     FlutterSecureStorage storage = const FlutterSecureStorage(),
-  }) : _storage = storage;
+    KeyboardSettings? keyboardSettings,
+  })  : _storage = storage,
+        _keyboardSettings = keyboardSettings ?? KeyboardSettings();
 
   /// Makes the keyboard's token match the signed-in user: issues one after
   /// sign-in (or a change of account), removes and revokes it after
@@ -56,7 +61,11 @@ class KeyboardAuthService {
     final token = await _storage.read(key: tokenKey, iOptions: _options);
     final owner = await _storage.read(key: tokenUserKey, iOptions: _options);
 
-    if (token != null && userId != null && owner == userId) return;
+    if (token != null && userId != null && owner == userId) {
+      // The Android keyboard may have lost it (e.g. after an update).
+      await _keyboardSettings.setKeyboardToken(token);
+      return;
+    }
     if (token != null) await _revoke(token);
     if (userId == null) return;
 
@@ -67,6 +76,7 @@ class KeyboardAuthService {
     }
     await _storage.write(key: tokenKey, value: newToken, iOptions: _options);
     await _storage.write(key: tokenUserKey, value: userId, iOptions: _options);
+    await _keyboardSettings.setKeyboardToken(newToken);
   }
 
   /// Removes the token from the Keychain first (so the keyboard stops using
@@ -76,6 +86,7 @@ class KeyboardAuthService {
   Future<void> _revoke(String token) async {
     await _storage.delete(key: tokenKey, iOptions: _options);
     await _storage.delete(key: tokenUserKey, iOptions: _options);
+    await _keyboardSettings.setKeyboardToken(null);
     try {
       await _dioClient.delete(
         '/api/keyboard/token',

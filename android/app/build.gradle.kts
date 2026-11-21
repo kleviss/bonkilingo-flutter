@@ -17,6 +17,13 @@ if (hasReleaseKey) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// The keyboard calls the backend itself (it has no Flutter engine), so it
+// gets the URL from env.json at build time, like the app's --dart-define-from-file.
+val keyboardApiBaseUrl: String = rootProject.file("../env.json").takeIf { it.exists() }
+    ?.readText()
+    ?.let { Regex("\"API_BASE_URL\"\\s*:\\s*\"(https://[^\"]+)\"").find(it)?.groupValues?.get(1) }
+    ?: "https://bonkilingo-backend.vercel.app"
+
 android {
     namespace = "com.bonkilingo.app"
     compileSdk = flutter.compileSdkVersion
@@ -38,6 +45,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        resValue("string", "bonkilingo_api_base_url", keyboardApiBaseUrl)
     }
 
     signingConfigs {
@@ -67,4 +75,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Keyboard logic tests (app/src/test). org.json is a stub in local unit tests.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
