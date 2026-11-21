@@ -1,7 +1,7 @@
 class AppConstants {
   // App Info
   static const String appName = 'Bonkilingo';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.0.10'; // keep in sync with pubspec.yaml
 
   // API Endpoints (Points to standalone backend)
   static const String apiBaseUrl = String.fromEnvironment(
@@ -16,6 +16,12 @@ class AppConstants {
   // Supabase
   static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
   static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  // iOS keyboard extension (BONKILINGO_ROADMAP.md). The setup guide stays
+  // hidden until the keyboard target ships; build with
+  // --dart-define=KEYBOARD_EXTENSION=true to preview it.
+  static const bool keyboardExtensionEnabled =
+      bool.fromEnvironment('KEYBOARD_EXTENSION');
 
   // Storage Keys
   static const String userDataKey = 'user_data';

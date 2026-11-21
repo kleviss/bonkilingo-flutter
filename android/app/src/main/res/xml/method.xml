@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Bonkilingo keyboard (keyboard/BonkilingoKeyboardService.kt). Its own
+     EN/DE layout switch is in the keyboard's bar, so no subtypes. The settings
+     entry opens the app, where Settings › Bonkilingo keyboard has its switches. -->
+<input-method xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="com.bonkilingo.app.MainActivity"
+    android:supportsSwitchingToNextInputMethod="true" />

@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons;
+import 'package:flutter/material.dart' show Icons, ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/theme_helper.dart';
+import '../../../core/theme/brand_colors.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/brand/brand_page.dart';
+import '../../widgets/brand/brand_surfaces.dart';
+import '../../widgets/brand/highlighted_title.dart';
+import '../../widgets/brand/pill_button.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/rewards_provider.dart';
 import '../../../data/models/lesson_progress_model.dart';
@@ -89,7 +93,7 @@ class _StructuredLessonScreenState
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Lesson Complete!'),
+        title: const Text('Lesson complete!'),
         content: const Text('Congratulations! You\'ve completed this lesson.'),
         actions: [
           CupertinoDialogAction(
@@ -122,31 +126,44 @@ class _StructuredLessonScreenState
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
-    final theme = ThemeHelper(themeMode);
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final p = BrandPalette(isDark);
 
     if (_isLoading) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(widget.lessonTitle),
+      return BrandPage(
+        isDark: isDark,
+        title: widget.lessonTitle,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: BrandCard(
+              palette: p,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: Column(
+                children: [
+                  const CupertinoActivityIndicator(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Loading your lesson…',
+                    style: TextStyle(fontSize: 15, color: p.muted),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-        child: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.lessonTitle),
-      ),
-      child: SafeArea(
-        child: _isCompleted
-            ? _buildCompletionView(theme)
-            : _buildLessonView(theme),
-      ),
+    return BrandPage(
+      isDark: isDark,
+      title: widget.lessonTitle,
+      child: _isCompleted ? _buildCompletionView(p) : _buildLessonView(p),
     );
   }
 
-  Widget _buildLessonView(ThemeHelper theme) {
+  Widget _buildLessonView(BrandPalette p) {
     final section = widget.content[_currentSectionIndex];
     final progress = (_currentSectionIndex + 1) / widget.content.length;
 
@@ -154,25 +171,26 @@ class _StructuredLessonScreenState
       children: [
         // Progress indicator
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
           child: Row(
             children: [
               Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                child: Semantics(
+                  label: 'Section ${_currentSectionIndex + 1} of '
+                      '${widget.content.length}',
                   child: Container(
-                    height: 8,
+                    height: 10,
                     decoration: BoxDecoration(
-                      color: theme.border,
-                      borderRadius: BorderRadius.circular(4),
+                      color: p.cardSunken,
+                      borderRadius: BorderRadius.circular(999),
                     ),
                     child: FractionallySizedBox(
                       widthFactor: progress,
                       alignment: Alignment.centerLeft,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: theme.primary,
-                          borderRadius: BorderRadius.circular(4),
+                          gradient: BrandColors.iconGradient,
+                          borderRadius: BorderRadius.circular(999),
                         ),
                       ),
                     ),
@@ -180,11 +198,14 @@ class _StructuredLessonScreenState
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                '${_currentSectionIndex + 1}/${widget.content.length}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: theme.textSecondary,
+              ExcludeSemantics(
+                child: Text(
+                  '${_currentSectionIndex + 1}/${widget.content.length}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: p.muted,
+                  ),
                 ),
               ),
             ],
@@ -194,138 +215,100 @@ class _StructuredLessonScreenState
         // Content
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Section title
-                Text(
-                  section.title,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textPrimary,
+                Semantics(
+                  header: true,
+                  child: Text(
+                    section.title,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
+                      height: 1.15,
+                      color: p.text,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-                // Section content
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: theme.cardBackground,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: theme.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (section.vocabulary.isNotEmpty) ...[
-                        Text(
-                          'Vocabulary:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: theme.textPrimary,
-                          ),
+                if (section.vocabulary.isNotEmpty) ...[
+                  BrandSectionTitle('Vocabulary', palette: p),
+                  BrandCard(
+                    palette: p,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            BrandIconBadge(
+                              icon: Icons.translate,
+                              color: _blue,
+                              isDark: p.isDark,
+                              size: 32,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              '${section.vocabulary.length} words',
+                              style: TextStyle(fontSize: 14, color: p.muted),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children: section.vocabulary
-                              .map((word) => Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: theme.primary.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: theme.primary.withOpacity(0.3),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      word,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: theme.primary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                      if (section.phrases.isNotEmpty) ...[
-                        Text(
-                          'Phrases:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: theme.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        ...section.phrases.map((phrase) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
+                          children: [
+                            for (final word in section.vocabulary)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: theme.cardBackground,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: theme.border),
+                                  color: p.cardSunken,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  phrase,
+                                  word,
                                   style: TextStyle(
-                                    fontSize: 15,
-                                    color: theme.textPrimary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: p.text,
                                   ),
                                 ),
                               ),
-                            )),
-                        const SizedBox(height: 20),
-                      ],
-                      if (section.grammarTips.isNotEmpty) ...[
-                        Text(
-                          'Grammar Tips:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: theme.textPrimary,
-                          ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        ...section.grammarTips.map((tip) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.lightbulb_outline,
-                                    size: 20,
-                                    color: theme.primary,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      tip,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: theme.textSecondary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )),
                       ],
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 28),
+                ],
+
+                if (section.phrases.isNotEmpty) ...[
+                  BrandSectionTitle('Phrases', palette: p),
+                  _GroupedList(
+                    palette: p,
+                    icon: Icons.chat_bubble_outline,
+                    color: _purple,
+                    items: section.phrases,
+                  ),
+                  const SizedBox(height: 28),
+                ],
+
+                if (section.grammarTips.isNotEmpty) ...[
+                  BrandSectionTitle('Grammar tips', palette: p),
+                  _GroupedList(
+                    palette: p,
+                    icon: Icons.lightbulb_outline,
+                    color: BrandColors.leaf,
+                    items: section.grammarTips,
+                  ),
+                ],
               ],
             ),
           ),
@@ -333,26 +316,25 @@ class _StructuredLessonScreenState
 
         // Navigation buttons
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
           child: Row(
             children: [
               if (_currentSectionIndex > 0)
                 Expanded(
-                  child: CupertinoButton(
+                  child: SecondaryPillButton(
+                    palette: p,
+                    height: 56,
+                    label: 'Previous',
                     onPressed: _previousSection,
-                    color: theme.cardBackground,
-                    child: const Text('Previous'),
                   ),
                 ),
               if (_currentSectionIndex > 0) const SizedBox(width: 12),
               Expanded(
-                child: CupertinoButton.filled(
+                child: PillButton(
+                  label: _currentSectionIndex == widget.content.length - 1
+                      ? 'Complete'
+                      : 'Next',
                   onPressed: _nextSection,
-                  child: Text(
-                    _currentSectionIndex == widget.content.length - 1
-                        ? 'Complete'
-                        : 'Next',
-                  ),
                 ),
               ),
             ],
@@ -362,42 +344,89 @@ class _StructuredLessonScreenState
     );
   }
 
-  Widget _buildCompletionView(ThemeHelper theme) {
+  Widget _buildCompletionView(BrandPalette p) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(
-              Icons.check_circle,
-              size: 80,
-              color: CupertinoColors.systemGreen,
+            Center(
+              child: BrandIconBadge(
+                icon: Icons.check_circle,
+                color: BrandPalette.green,
+                isDark: p.isDark,
+                size: 96,
+              ),
             ),
             const SizedBox(height: 24),
-            Text(
-              'Lesson Complete!',
+            HighlightedTitle(
+              'Lesson *complete*',
               style: TextStyle(
                 fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: theme.textPrimary,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.6,
+                height: 1.15,
+                color: p.text,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
               widget.lessonTitle,
-              style: TextStyle(
-                fontSize: 20,
-                color: theme.textSecondary,
-              ),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18, color: p.muted),
             ),
             const SizedBox(height: 32),
-            CupertinoButton.filled(
+            PillButton(
+              label: 'Done',
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+const _blue = Color(0xFF4F8EF7);
+const _purple = Color(0xFFB07CF5);
+
+/// Lines of a lesson section as rows of a grouped card, each with the
+/// section's colour-coded badge.
+class _GroupedList extends StatelessWidget {
+  final BrandPalette palette;
+  final IconData icon;
+  final Color color;
+  final List<String> items;
+
+  const _GroupedList({
+    required this.palette,
+    required this.icon,
+    required this.color,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BrandCard(
+      palette: palette,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        children: [
+          for (final (i, item) in items.indexed) ...[
+            if (i > 0) BrandRowDivider(palette: palette),
+            BrandListRow(
+              palette: palette,
+              leading: BrandIconBadge(
+                icon: icon,
+                color: color,
+                isDark: palette.isDark,
+              ),
+              title: item,
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_constants.dart';
 
 class DioClient {
@@ -18,26 +20,34 @@ class DioClient {
       ),
     );
 
-    // Add interceptors
-    _dio.interceptors.add(
-      PrettyDioLogger(
-        requestHeader: true,
-        requestBody: true,
-        responseBody: true,
-        responseHeader: false,
-        error: true,
-        compact: true,
-      ),
-    );
+    // Request logging in debug builds only, and never headers: they carry the
+    // user's access token. Bodies hold the user's text, so not in release.
+    if (kDebugMode) {
+      _dio.interceptors.add(
+        PrettyDioLogger(
+          requestHeader: false,
+          requestBody: true,
+          responseBody: true,
+          responseHeader: false,
+          error: true,
+          compact: true,
+        ),
+      );
+    }
 
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Add auth token if available
-          // final token = await _getAuthToken();
-          // if (token != null) {
-          //   options.headers['Authorization'] = 'Bearer $token';
-          // }
+          // Signed-in users get per-user limits on the AI endpoints; signed-out
+          // requests go out without a token and get the anonymous limit.
+          // Callers that set their own Authorization header keep it.
+          if (!options.headers.containsKey('Authorization')) {
+            final token =
+                Supabase.instance.client.auth.currentSession?.accessToken;
+            if (token != null) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
+          }
           return handler.next(options);
         },
         onError: (error, handler) {

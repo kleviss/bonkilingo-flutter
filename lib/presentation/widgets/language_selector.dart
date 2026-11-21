@@ -40,4 +40,3 @@ class LanguageSelector extends StatelessWidget {
     );
   }
 }
-

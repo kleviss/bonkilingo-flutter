@@ -1,0 +1,6 @@
+# Copy to android/key.properties (gitignored) and fill in. Never commit the real file.
+# storeFile is resolved relative to android/app/, so an absolute path is simplest.
+storePassword=
+keyPassword=
+keyAlias=upload
+storeFile=/Users/YOU/keys/bonkilingo-upload.jks

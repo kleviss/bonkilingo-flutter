@@ -28,7 +28,8 @@ class SupabaseApi {
       rethrow;
     } catch (_) {
       throw AppAuthException(
-          'An error occurred while creating your account. Please try again.');
+        'An error occurred while creating your account. Please try again.',
+      );
     }
   }
 
@@ -44,7 +45,8 @@ class SupabaseApi {
       rethrow;
     } catch (_) {
       throw AppAuthException(
-          'An error occurred while signing in. Please try again.');
+        'An error occurred while signing in. Please try again.',
+      );
     }
   }
 
@@ -93,18 +95,29 @@ class SupabaseApi {
   // ========== Chat Sessions ==========
 
   Future<ChatSessionModel> saveChatSession(ChatSessionModel session) async {
+    final row = {
+      'user_id': session.userId,
+      'corrected_text': session.correctedText,
+      'input_text': session.inputText,
+      'language': session.language,
+      'model': session.model,
+      if (session.createdAt != null)
+        'created_at': session.createdAt!.toUtc().toIso8601String(),
+      // Only sent when it isn't the column's default, so app corrections
+      // still save before docs/supabase/chat_sessions_source.sql is applied.
+      if (session.source != ChatSessionModel.sourceApp) 'source': session.source,
+    };
+    Future<Map<String, dynamic>> insert(Map<String, dynamic> values) =>
+        _supabase.from('chat_sessions').insert(values).select().single();
     try {
-      final response = await _supabase
-          .from('chat_sessions')
-          .insert({
-            'user_id': session.userId,
-            'corrected_text': session.correctedText,
-            'input_text': session.inputText,
-            'language': session.language,
-            'model': session.model,
-          })
-          .select()
-          .single();
+      Map<String, dynamic> response;
+      try {
+        response = await insert(row);
+      } on PostgrestException catch (e) {
+        // PGRST204: the `source` column doesn't exist yet; save without it.
+        if (e.code != 'PGRST204' || !row.containsKey('source')) rethrow;
+        response = await insert({...row}..remove('source'));
+      }
 
       return ChatSessionModel.fromJson(response);
     } catch (e) {
