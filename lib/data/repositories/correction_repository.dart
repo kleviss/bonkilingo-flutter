@@ -110,7 +110,7 @@ class CorrectionRepository {
               correctedText: json['correctedText'] ?? '',
               inputText: json['inputText'] ?? '',
               language: json['language'] ?? 'english',
-              model: json['model'] ?? 'gpt-3.5-turbo',
+              model: json['model'] ?? 'gpt-6-luna',
               createdAt: json['createdAt'] != null
                   ? DateTime.parse(json['createdAt'])
                   : null,
