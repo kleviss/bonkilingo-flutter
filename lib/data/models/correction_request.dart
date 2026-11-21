@@ -8,7 +8,7 @@ class CorrectionRequest with _$CorrectionRequest {
   const factory CorrectionRequest({
     required String text,
     required String language,
-    @Default('gpt-3.5-turbo') String model,
+    @Default('gpt-6-luna') String model,
   }) = _CorrectionRequest;
 
   factory CorrectionRequest.fromJson(Map<String, dynamic> json) =>

@@ -284,7 +284,7 @@ Update `.env` for production:
 ```env
 SUPABASE_URL=https://your-production-project.supabase.co
 SUPABASE_ANON_KEY=your_production_anon_key
-API_BASE_URL=https://api.bonkilingo.com
+API_BASE_URL=https://bonkilingo-backend.vercel.app
 ```
 
 ## Additional Resources
